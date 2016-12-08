@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Misc | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/misc/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Starting a Octopress Blog]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/22/starting-a-octopress-blog/"/>
+    <updated>2015-04-22T13:55:02+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/22/starting-a-octopress-blog</id>
+    <content type="html"><![CDATA[<h2>Generate a post</h2>
+
+
+<p>the first step to generate a octopress post is using rake task to create a file with title.
+<code>
+rake new_post["post title"]
+</code>
+this command will create a file inside the <code>source/_posts</code>, use your text editor to open this file.</p>
+
+<!--more-->
+
+
+<h2>Yaml Front matter</h2>
+
+
+<p>In the very top of the content, you will see some text like this, this is called <strong>yaml front matter</strong></p>
+
+<pre><code>---
+layout: post
+title: "Starting a Octopress Blog"
+date: 2015-04-22 13:55:02 +0800
+comments: true
+categories: 
+---
+</code></pre>
+
+<p>Here is where you can have some simple information of the post, and also assign categories to this post.</p>
+
+<p>Here is how to assign categories.</p>
+
+<p>Only one category:
+<code>
+categories: Animal
+</code>
+Muitiple categories 1:
+<code>
+categories: [Animal, Love, Human, Coding]
+</code>
+Muitiple categories 2:
+<code>
+categories:
+- Animal
+- Love
+- Human
+- Coding
+</code></p>
+
+<h2>Start writing Content</h2>
+
+
+<p>After the <strong>yaml front matter</strong> is where to put the real content.</p>
+
+<p>The octopress blogging framework is using <a href = 'http://markdown.tw'>Markdown</a> syntax which is really powerful to write a coder&rsquo;s blog.</p>
+
+<h2>Preview and publish</h2>
+
+
+<p>To preview the Blog.
+<code>
+rake preview
+</code>
+and then open your brower and navigate to <code>localhost:4000</code>
+To push to post to public.
+<code>
+rake generate
+rake deploy
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>

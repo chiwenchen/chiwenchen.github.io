@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rspec - Build Rspec and First Model Test - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Rspec is a widespread BDD(Behaviour-Driven Development) tool for ruby. coding with Rspec, we can develop our application in TDD way. write testing &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chiwenchen.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Rspec - Build Rspec and First Model Test</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-26T14:12:08+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:12 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Rspec is a widespread BDD(Behaviour-Driven Development) tool for ruby. coding with Rspec, we can develop our application in TDD way. write testing code(also can be a spec document) and then write code to fulfill the requirement of testing code. once all the test passed, the code base is also finished. Here we will talk about how to set up Rspec environment and also write the Unit test for our model.</p>
+
+<!-- more -->
+
+
+<h2>Build up the Rspec test environment</h2>
+
+
+<p>in <code>Gemfile</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">group</span> <span class="ss">:test</span><span class="p">,</span> <span class="ss">:development</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;rspec-rails&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then run <code>bundle install</code> to install the <code>rspec</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rails</span> <span class="n">g</span> <span class="ss">rspec</span><span class="p">:</span><span class="n">install</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will generate two documents and one folder: <code>spec</code> folder, <code>.rspec</code> and <code>spec/spec_helper.rb</code>.
+Also another thing is to prepare our test database, because the test database is seperate from the development databse and will not interfere each other, but will share the same schema. To run below command generate the test database.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="nb">test</span><span class="ss">:prepare</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the <code>spec/spec_helper.rb</code> is the config file used to configure Rspec itself. Meanwhile, <code>spec</code> is where we will put our testing file. Now generate a folder <code>models</code> under <code>spec</code>. Here is to place all the <strong>Unit test</strong> for each models. Under the <code>models</code>, we can create a file called <code>PROJECTNAME_spec.rb</code>. Which the <code>PROJECTNAME</code> will same as your project name. In this case, we name it <code>myflix_spec.rb</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span> <span class="c1">#this line is required in all test file. the rspec will load rails enviroment alos with this class.</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">Video</span> <span class="k">do</span> <span class="c1">#&#39;describe&#39; is the syntax for test, and the Video is the model name matchs the model we are going to test.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;save itself&#39;</span> <span class="k">do</span> <span class="c1"># &#39;it&#39; is the saved word</span>
+</span><span class='line'>    <span class="c1">#1.  set up the stage(data)</span>
+</span><span class='line'>    <span class="n">video</span> <span class="o">=</span> <span class="no">Video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="ss">title</span><span class="p">:</span> <span class="s1">&#39;Mission Impossible 3&#39;</span><span class="p">,</span> <span class="ss">description</span><span class="p">:</span> <span class="s1">&#39;Very cool movie&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#2.  perform a action</span>
+</span><span class='line'>    <span class="n">video</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#3.  verify the result</span>
+</span><span class='line'>    <span class="no">Video</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="s1">&#39;Mission Impossible 3&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next thing is to run <code>rspec</code> in terminal to see the result.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="err">➜</span>  <span class="n">myflix</span> <span class="ss">git</span><span class="p">:(</span><span class="n">master</span><span class="p">)</span> <span class="err">✗</span> <span class="n">rspec</span>
+</span><span class='line'><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Finished</span> <span class="k">in</span> <span class="mi">0</span><span class="o">.</span><span class="mo">03</span><span class="mi">922</span> <span class="n">seconds</span>
+</span><span class='line'><span class="mi">1</span> <span class="n">example</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failures</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Randomized</span> <span class="n">with</span> <span class="n">seed</span> <span class="mi">18414</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-05-26T14:12:08+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:12 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/test/'>test</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test/" data-via="" data-counturl="http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/24/rake-mission/" title="Previous Post: Rake - Database Tasks">&laquo; Rake - Database Tasks</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/24/rspec-controller-test/" title="Next Post: Rspec - Controller test">Rspec - Controller test &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/17/neo4j-and-graph-database/">Neo4j and Graph Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/15/deploy-rails-to-ubuntu/">Deploy_rails_to_ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

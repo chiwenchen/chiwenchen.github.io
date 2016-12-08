@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Rails | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Random Token]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/08/13/random-token/"/>
+    <updated>2015-08-13T22:22:49+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/08/13/random-token</id>
+    <content type="html"><![CDATA[<p>To expose raw data to user is always not a ideal situation, for example, if our app can show every user&rsquo;s profile, and the url of each user&rsquo;s profile looks like this:</p>
+
+<pre><code class="rb">www.example.com/user/1
+</code></pre>
+
+<p>Then the user will be able to see the <code>id</code> of every user directly, if they want, they can even change the id on the url and see other&rsquo;s profile, or try to predict the total member of our app, this might be the business sensetive information we want to hide. so we need a way to keep this kind of information away from users, a good way to accomplish this is to use <code>Random Token</code>. by using random token, we wrap our information by a meanless string to keep it away from user, instead of <code>id</code> strightly shown on url, they will see something like this:</p>
+
+<pre><code>www.example.com/user/124343njkdsdw
+</code></pre>
+
+<!-- more -->
+
+
+
+
+<h2>Generate and use Random Token</h2>
+
+
+<p>Firstly, we need to use migration to create a <code>token</code> column for the target, for example, the <code>User</code> model:</p>
+
+<pre><code>$ rails g migration add_token_to_users
+</code></pre>
+
+<p>then run <code>db:migrate</code>, this will add a column <code>token</code> for us. Next step, we need to automatically generate the random token every time we add a new user account. so let&rsquo;s dive into User&rsquo;s model and add some code:</p>
+
+<pre><code>class User &lt; ActiveRecord::Base
+
+  after_create :generate_token
+
+  def generate_token
+    self.token = SecureRandom.urlsafe_base64
+  end
+
+end
+</code></pre>
+
+<p>This method will give us the random token everytime right after we call <code>User.create</code> method, so it is very important to use <code>after_create</code>, not <code>after_save</code>, because if we do so, the token will change even we update the user&rsquo;s data, remenber, update also calls <code>save</code> method behind the scene, and that is what we don&rsquo;t want in this situation.</p>
+
+<p>PS: Here are some more <a href='http://ruby-doc.org/stdlib-1.9.2/libdoc/securerandom/rdoc/SecureRandom.html'>Ruby doc - SecureRandom</a> that we can use.</p>
+
+<p>Next, we have to overwrite the to_param method in User model.</p>
+
+<pre><code>def to_param
+  token
+end
+</code></pre>
+
+<p>And also in user&rsquo;s controller, before the implementation, we use <code>find</code> to grab id and search for target user, now we have to use <code>token</code> instead, so we also need to rewrite this part, for example.</p>
+
+<pre><code>User.find_by_token(params[:token])
+</code></pre>
+
+<p>Final step, before we create the token column, we already have some existing data, those old data will leave the token blank at the time we add this new column. to fix it, open the migration file and do so to manually let app to generate token for each old user:</p>
+
+<pre><code>class AddTokenToUser &lt; ActiveRecord::Migration
+  def change
+    add_column :users, :token, :string
+  end
+
+  User.all.each do |user|
+    user.generate_token
+  end
+end
+</code></pre>
+
+<p>And that&rsquo;s all, the random token is ready to serve.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Time Zone]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone/"/>
+    <updated>2015-05-16T15:08:12+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone</id>
+    <content type="html"><![CDATA[<p>In this post, we will introduce how to implement <code>TimeZone</code> and also how to allow user to customize their local timezone.</p>
+
+<!-- more -->
+
+
+<h2>Display time zone</h2>
+
+
+<p>In <code>time_format</code> method in side <code>application_helper.rb</code> file, add %Z to display the time zone.</p>
+
+<pre><code class="rb">def time_format(original_time)
+  original_time.strftime("%b/%d/%Y %I:%M%p %Z")
+end
+</code></pre>
+
+<h2>Set default time zone</h2>
+
+
+<p>In <code>application.rb</code> file under <code>config</code>. uncomment the below code.</p>
+
+<pre><code class="rb">config.time_zone = 'Central Time (US &amp; Canada)'
+</code></pre>
+
+<p>You can see now the default time zone is in <code>UTC</code>.</p>
+
+<p>To find out all the time zone availiable in rails app. fisrtly we can type <code>rake -T | grep time</code> to find any rake task realted to <code>time</code>.</p>
+
+<pre><code class="">rake time:zones:all         # Displays all time zones, also available: time:zones:us, time:zones:local -- filter with OFFSET parameter, e.g., OFFSET=-6
+</code></pre>
+
+<p>Now we can use <code>rake time:zones:all</code> to see all the time zone.
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>* UTC -11:00 *
+</span><span class='line'>American Samoa
+</span><span class='line'>International Date Line West
+</span><span class='line'>Midway Island&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;ul&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -10:00 *
+</span><span class='line'>Hawaii&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -09:00 *
+</span><span class='line'>Alaska&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -08:00 *
+</span><span class='line'>Pacific Time (US &amp; Canada)
+</span><span class='line'>Tijuana&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -07:00 *
+</span><span class='line'>Arizona
+</span><span class='line'>Chihuahua
+</span><span class='line'>Mazatlan
+</span><span class='line'>Mountain Time (US &amp; Canada)&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;/ul&gt;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;&hellip;
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>And you can use `grep` to find your own country's string.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>rake time:zones:all | grep Taipei
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>In my case, I search for `Taipei` and find it.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>$ Taipei
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>So now I can use it as my default time zone, back to the application.rb file and modify it.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>config.time_zone = &lsquo;Taipei&rsquo;
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>Now the time zone in my app is change to `CST` which is the shortcut for China Standard Time UTC+8.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>May/13/2015 09:07PM CST</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>Allow User customize time zone</h2>
+
+
+<h3>Add an time_zone column</h3>
+
+
+<pre><code>rails generate migration add_timezone_to_user
+</code></pre>
+
+<p>define column in the below migration file and execute <code>rake db:migration</code>
+<code>
+class AddTimezoneToUser &lt; ActiveRecord::Migration
+  def change
+    add_column :users, :time_zone, :string
+  end
+end
+</code>
+In the <code>users</code>&rsquo;s <code>new</code> form, add new column for user to select time_zone.</p>
+
+<p>```</p>
+
+<div class = 'control_group'> 
+    <%= f.label :time_zone %>
+    <%= f.time_zone_select :time_zone ActiveSupport::TimeZone.us_zones %> 
+</div>
+
+
+<pre><code>The `ActiveSupport::TimeZone` class have support lots of way to customize our time_zone selecting form.
+
+Put a `binding.pry` in the `create` action to peep the value come with the time_zone form. and here is the params returns back.
+</code></pre>
+
+<p>=> {&ldquo;utf8&rdquo;=>&ldquo;✓&rdquo;,
+ &ldquo;authenticity_token&rdquo;=>&ldquo;5ldSHKcI9hvw1vJK7fZQ9hqETmHSB8kp2gflEylDSME=&rdquo;,
+ &ldquo;user&rdquo;=>
+  {&ldquo;username&rdquo;=>&ldquo;test1&rdquo;,
+   &ldquo;password&rdquo;=>&ldquo;test1&rdquo;,
+   &ldquo;phone_number&rdquo;=>&ldquo;123&rdquo;,
+   &ldquo;email&rdquo;=>&ldquo;123&rdquo;,
+   &ldquo;time_zone&rdquo;=>&ldquo;Taipei&rdquo;}, #time zone is here!!
+ &ldquo;commit&rdquo;=>&ldquo;Register Now&rdquo;,
+ &ldquo;action&rdquo;=>&ldquo;create&rdquo;,
+ &ldquo;controller&rdquo;=>&ldquo;users&rdquo;}
+<code>
+If we check our strong_params in command line.
+</code>
+Unpermitted parameters: time_zone
+=> {&ldquo;username&rdquo;=>&ldquo;test1&rdquo;,
+ &ldquo;password&rdquo;=>&ldquo;test1&rdquo;,
+ &ldquo;phone_number&rdquo;=>&ldquo;123&rdquo;,
+ &ldquo;email&rdquo;=>&ldquo;123&rdquo;}
+<code>``
+Now the time_zone is not permitted yet. so add</code>time_zone` to the permit list.</p>
+
+<p>And now we can display the time zone that given by the user. make some change on the <code>application_helper.rb</code>.</p>
+
+<pre><code>def time_format(date_time)
+    if logged_in? &amp;&amp; !current_user.time_zone.blank?
+        date_time = date_time.in_time_zone(current_user.time_zone)
+    end
+  date_time.strftime("%b/%d/%Y %I:%M%p %Z")
+end
+</code></pre>
+
+<p>This will then display the right time as per user&rsquo;s want.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Basic Controller]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/13/rails-basic-controller/"/>
+    <updated>2015-05-13T11:53:23+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/13/rails-basic-controller</id>
+    <content type="html"><![CDATA[<p><code>C</code> stands for Controller in the entire <code>MVC</code> structure, it basically has two different types of methods including <code>action</code> and <code>helper</code>. <code>action</code> methods handle request routed by url, interact with model and then give response back to the browser. and the <code>helper</code> methods is used by the <code>action</code> method.</p>
+
+<!-- more -->
+
+
+<p>In general, controller act the middle man between views and models.</p>
+
+<h2>Controller file and basic content</h2>
+
+
+<p>By Rails convention, the file name of controller is snakecase and plural, for instance <code>posts_controller.rb</code> and will place under the <code>controllers</code> folder. so the file structure looks like.
+<code>rb
+PROJECT FOLDER
+    -&gt; app
+        -&gt; controllers
+        -&gt; posts_controller.rb
+</code>
+Next, we have to define the class inside the <code>.rb</code> file.</p>
+
+<pre><code class="rb">class PostsController &lt; ApplicationController
+    #the class name must be CamelCase and plural.
+end
+</code></pre>
+
+<p>Next, inside the <code>.rb</code> file, controller will have basic seven actions defined by RESTFUL structure which are <code>index</code>, <code>show</code>, <code>new</code>, <code>create</code>, <code>edit</code>, <code>update</code> and <code>destroy</code>, but be remind that the actions are not limited to this seven basic actions according to particular cases.</p>
+
+<h3>Index action</h3>
+
+
+<p><code>index</code> action is used to list all the objects of the resource, for example, we can use index to list out all the posts in our webapp. so here is how we define index action.
+<code>
+def index
+    @post = Post.all
+end
+</code>
+Here we only do one simple thing(actually two, another one is hidden). we retrive all the instance objects of the Post class and store it to the <code>@post</code> instance variable.</p>
+
+<p>Another thing we do is not shown here that is render the index template. By Rails convention, the controller action will automatically render the template which is sharing the same name of itself. in this case:
+<code>
+PROJECT FOLDER
+    -&gt; app
+        -&gt; views
+            -&gt; posts
+                -&gt; index.html.erb
+</code>
+if we write it out, the method will like this:
+<code>
+def index
+    @post = Post.all
+    render 'posts#index'
+end
+</code>
+<code>index</code> action is done its job! receive the request, interact with DB to retrive data and pass the data to relative template(views).</p>
+
+<h3>Show action</h3>
+
+
+<p><code>show</code> action is used when we want to deal with single object of the resource, like if we want to display one particular post.
+<code>
+def show
+    @post = Post.find(params[:id])
+end
+</code>
+Very similar to the index action, but we retrive the particular post through the information given by params.</p>
+
+<p><code>params</code> is a hash like data structure which is part of the url passing by router. the data will look something like this:
+<code>
+params = {id: 1, title: 'some title', body: 'some content', created_at: '20150101'}
+</code>
+So here we can use <code>find</code> method to get the right object we want by having the <code>id</code> information.</p>
+
+<p>Again, the <code>show</code> action will render the template to preceed the information.</p>
+
+<h3>New and Create action</h3>
+
+
+<p><code>new</code> action is only used to render the form template, so that the user can type data. If we want to create a new post, we will need a form to put in those inforamtion.
+<code>
+def new
+    @post = Post.new
+end
+</code>
+One simple thing happens here, we <code>new</code> a object and store it to instance variable <code>@post</code> and then pass it to the form template.</p>
+
+<p>When the user complete the form and hit <code>submit</code> (See the <a href = '../model-backed-form'>model backed form</a> tutorial here), the routing mechanism will send a <code>POST</code> request and route to &lsquo;create&rsquo; action along with the <code>params</code>.</p>
+
+<p>In <code>create</code> action, we have to store the information into DB and redirect or render basing on the saving condition.</p>
+
+<pre><code class="rb">def create
+    @post = Post.new(strong_params)
+    if @post.save
+        #HAPPY PATH
+        flash[:notice] = 'You have created a new post!'
+        redirect_to root_path
+    else
+        #NO HAPPY PATH
+        render 'new'
+    end
+end
+</code></pre>
+
+<p>Here shows if the <code>@post</code> is saved, then show a notice message to the user and redirect to somewhere else.</p>
+
+<p>If not, render the template again, so the user will be able to fill in the correct information again. (in the <code>new</code> template, it should have some machenism to demonstrate the error message to the user, here is introduction about how to show <a href = '../error-message-for-model-backed-form'>error message for the model backed form</a>)</p>
+
+<h3>Edit and Update action</h3>
+
+
+<p><code>edit</code> is the action similar to <code>new</code> used for rendering a form for user to fill in some information, but at this time, it updates a existing object.</p>
+
+<pre><code>def edit
+    @post = Post.find(params[:id])
+end
+</code></pre>
+
+<p>After &lsquo;edit&rsquo; action, <code>update</code> action is executed just like the <code>create</code> action to overwrite the data in DB and then redirect or render base on the update condition.</p>
+
+<pre><code>def update
+    @post = Post.find(params[:id])
+    if @post.update(strong_params)
+        #HAPPY PATH
+        flash[:notice] = 'You have updated this post!'
+        redirect_to post_path(@post)
+    else
+        #NO HAPPY PATH
+        render 'edit'
+    end
+end
+</code></pre>
+
+<h3>Destroy action</h3>
+
+
+<p><code>destroy</code> action is used to delete the particular data from the DB.</p>
+
+<pre><code>def destroy
+    Post.destroy(strong_params)
+end
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Add Slug to Rails Webapp]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/13/add-slug-to-webapp/"/>
+    <updated>2015-05-13T10:19:48+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/13/add-slug-to-webapp</id>
+    <content type="html"><![CDATA[<p>By Rails default, if we retrive the object in DB and show related inforamtion to the browser like the <code>show action</code>, the url will show the <em>id</em> of the object as well. This is no good in production webapp in some reasons, one is the original information will exposed to the user, higher the risk web been hacked. for instance, user might able to keyin the id one by one to see all the posts in our website. another disadvantage is that the SEO will lower due to the irrelevant url.</p>
+
+<p>Lucky, we can solve the two issues by introduce slug into our website. <strong>Slug</strong> is a string that will allow us to show some information in the url replacing <em>id</em>. to firstly hide some sensitive information and also provide relatively useful information to user.</p>
+
+<p>before introducing slug, the url looks like:
+<code>
+http://my_web/post/1
+</code>
+after introducing slug:
+<code>
+http://my_web/post/good-post-about-food
+</code>
+Let&rsquo;s see how to implement slug.</p>
+
+<!-- more -->
+
+
+<h3>Model</h3>
+
+
+<p>Firstly we need to create a column to store the slug for each objects, in the example here, we will create slug for Post model. in commend line:
+<code>
+rails generate migration add_slug_to_post
+</code>
+in the migration file:
+<code>rb
+class AddSlugToPost &lt; ActiveRecord::Migration
+  def change
+    add_column :posts, :slug, :string
+  end
+end
+</code>
+we would like to simple generate slug by converte the title into some proper string. so def a <code>generate slug</code> method in the post model.
+<code>
+def generate_slug
+  self.slug = self.title.gsub(' ', '_').downcase
+end
+</code>
+this will translate title <code>Good post about food</code> to slug <code>good-post-about-food</code>.
+but we still need a mechanism to store the slug automatically when the post is create or even updated. So we need <a href = 'http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html'><code>Callbacks</code></a> method here.</p>
+
+<pre><code>before_save :generate_slug
+</code></pre>
+
+<p>By adding the link above, the <code>generate slug</code> method will be execute everytime before the object been saved. this means that the slug we generated will saved into DB as well.</p>
+
+<p>One more method to add in model. we will use this method later in the <code>view</code> template when calling url named helper.</p>
+
+<pre><code>def to_param
+    self.slug
+end
+</code></pre>
+
+<h3>View</h3>
+
+
+<p>When we want to create a link or button, this is the code we might write in our view template.</p>
+
+<pre><code>&lt;%= link_to post.title, post_path(post), method: 'get' %&gt; 
+</code></pre>
+
+<p>Here the <code>post</code> is the object of the <code>Post</code> class, and when we call named helper like <code>post_path(post)</code>, it is actually calling the <code>to_param</code> method for the <code>post</code> object to turn the object into <code>id</code>. and this <code>id</code> will show in the url as well as pass to the relative controller action to retrive the right information to give back the correct response to browser.</p>
+
+<p>But the thing here is we want to show <code>slug</code> in our url instead of <code>id</code>. so that&rsquo;s why we overwrite the <code>to_param</code> method in the <code>Post</code> Model layer. to be more expressive, we can rewrite the named helper like so.
+<code>
+post_path(post.to_param)
+</code></p>
+
+<h3>Controller</h3>
+
+
+<p>In controller, here is the original code to retrive information from DB.
+<code>
+@post = Post.find(params[:id])
+</code>
+But remember, for now our key is no longer <code>id</code>, instead, we use <code>slug</code>!!
+<code>
+@post = Post.find_by(slug: params[:id])
+</code>
+For now, the basic slug is successfully added to our webapp.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Flavored Ajax]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/05/rails-flavor-ajax/"/>
+    <updated>2015-05-05T10:44:18+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/05/rails-flavor-ajax</id>
+    <content type="html"><![CDATA[<h2>jQuery flavored Ajax</h2>
+
+
+<p>If we use jQuery flavored ajax, this will be the code we have to write.
+<code>js
+$(document).ready(function() {
+    $(document).on('click', 'form#hit_form button', function() { //event listener
+        $.ajax({ // ajax request
+            type: 'POST',
+            url: '/game/player/hit'
+        }).done(function(msg) { // response
+            $('#game').replaceWith(function(msg);
+        });
+        return false;
+    });
+});
+</code>
+But for Rails, things got easier!</p>
+
+<!-- more -->
+
+
+<h2>Rails flavored Ajax</h2>
+
+
+<p>In Rails world, We can use rails&rsquo;s convention to implement ajax more easily.</p>
+
+<h3>View</h3>
+
+
+<p>First, we need to add <code>remote: true</code> in the link or button we want to ajax it. For instance.</p>
+
+<pre><code class="erb">  &lt;%= link_to vote_post_path(post, vote: false), method: 'post',remote: true do %&gt;
+</code></pre>
+
+<p>Just like the <code>method: 'post'</code>, the jQuery file will look for the <code>data-remote: true</code> which is converted from <code>remote: true</code> by html, and then attach itself into the element and convert the link into a ajax call.</p>
+
+<p>Once the link is clicked, we will moving to the related controller, so next, build the action to handle the ajax request.</p>
+
+<h3>Controller</h3>
+
+
+<p>After we done the DB job with the params passed in, next we have to deal with the response, typically, we will render template or redirect url, but with Ajax in the view, we have to tell what to do with the pure html and what to do with the ajax element. So we split the respond like this.</p>
+
+<pre><code class="rb">  def vote 
+    #@post = Post.find(params[:id])
+    #Vote.create(voteable: @post, voter: current_user, vote: params[:vote])
+    respond_to do |format|
+      format.html {redirect_to :back} #html respond
+      format.js #ajax respond
+    end
+  end
+</code></pre>
+
+<p>By convention, if no argument with the <code>format.js</code>, controller will look for a file same name as the action <code>vote</code>, but subtitle will be <code>.js.erb</code>, so we need to create a file called <code>vote.js.erb</code> under <code>/views/posts</code> to handle the response.</p>
+
+<p>before that, we have to add <code>id</code> for elements we want to change, in this example, we want to change the voting number when we click the voting button, so we can give the voting number a <code>id</code> like so:
+<code>js
+&lt;span id = 'vote_on_&lt;%= post.id %&gt;_post'&gt;
+  &lt;%= post.count_vote %&gt; liked
+&lt;/span&gt;
+</code>
+<em>hint: the argument of the <code>id</code> is html code, so we can use <code>&lt;%= %&gt;</code> to write dynamic code inside.</em></p>
+
+<p>OK, now we can go back <code>vote.js.erb</code> to finish the ajax response.</p>
+
+<pre><code class="js">$('#vote_on_&lt;%= @post.id %&gt;_post').html('&lt;%= @post.count_vote %&gt; liked')
+</code></pre>
+
+<h2>Conclusion</h2>
+
+
+<p>This means every time we trigger the ajax request by clicking the button we specify by giving it a <code>remote: true</code>, it will go through the controller and knowing where to find the ajax response should return back. Firstly, he will look for all the ids in the <code>.js.erb</code> file and replace the code all wrapped by the id with the code inside <code>.html()</code></p>
+]]></content>
+  </entry>
+  
+</feed>

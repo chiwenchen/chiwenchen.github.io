@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2016-12-08T14:45:55+08:00</updated>
+  <updated>2016-12-08T14:46:56+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,5 +12,2159 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Install Ubuntu, Nginx, Postgresql and Passenger in AWS]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/"/>
+    <updated>2016-09-27T11:20:27+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws</id>
+    <content type="html"><![CDATA[<h4>Create User</h4>
+
+
+<p>step1: create user</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo adduser apps
+</span><span class='line'>Enter new UNIX password: apps
+</span><span class='line'>Retype new UNIX password: apps
+</span><span class='line'>passwd: password updated successfully
+</span><span class='line'>Changing the user information for apps
+</span><span class='line'>Enter the new value, or press ENTER for the default
+</span><span class='line'>        Full Name []:
+</span><span class='line'>        Room Number []:
+</span><span class='line'>        Work Phone []:
+</span><span class='line'>        Home Phone []:
+</span><span class='line'>        Other []:
+</span><span class='line'>Is the information correct? [Y/n] Y</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step2: give user the sudo authrization</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo visudo
+</span><span class='line'># add [apps ALL=(ALL:ALL) ALL] in the file.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step3: switch to apps</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>su apps</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step4: update server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo apt-get update
+</span><span class='line'>$ sudo apt-get upgrade</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step5: setup SSH</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh-keygen
+</span><span class='line'>$ cd ~/.ssh
+</span><span class='line'>$ touch authorized_keys
+</span><span class='line'>$ vi authorized_keys
+</span><span class='line'>copy and past local machine's public key here</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step6: make ssh more easy</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># in local machine
+</span><span class='line'>$ vi ~/.ssh/config
+</span><span class='line'>
+</span><span class='line'>#add below line, mgstg can be any command you want.
+</span><span class='line'>Host myapp-staging
+</span><span class='line'>  HostName IPorDomainName
+</span><span class='line'>  User apps</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step7: setting time zone and NTP server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo dpkg-reconfigure tzdata
+</span><span class='line'>$ sudo apt-get install ntp
+</span><span class='line'>$ sudo ntpdate ntp.ubuntu.com # Update time</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step8: configure hostname</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo hostname your-hostname
+</span><span class='line'>$ sudo vim /etc/hosts
+</span><span class='line'>###
+</span><span class='line'>127.0.0.1 your-hostname
+</span><span class='line'>###
+</span><span class='line'>$ sudo vim /etc/hostname
+</span><span class='line'>###
+</span><span class='line'>your-hostname
+</span><span class='line'>###
+</span><span class='line'>$hostname #verify the hostname is set</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step9: install dependencies for ruby(source from GoRails)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step10: install RVM and ruby</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install libgdbm-dev libncurses5-dev automake libtool bison libffi-dev
+</span><span class='line'>gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+</span><span class='line'>curl -sSL https://get.rvm.io | bash -s stable
+</span><span class='line'>source ~/.rvm/scripts/rvm
+</span><span class='line'>rvm install 2.2.5
+</span><span class='line'>rvm use 2.2.5 --default
+</span><span class='line'>ruby -v</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step11: config Git</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git config --global color.ui true
+</span><span class='line'>$ git config --global user.name "YOUR NAME"
+</span><span class='line'>$ git config --global user.email "YOUR@EMAIL.com"
+</span><span class='line'>$ ssh-keygen -t rsa -b 4096 -C "YOUR@EMAIL.com"
+</span><span class='line'>$ cat ~/.ssh/id_rsa.pub
+</span><span class='line'># paste the ssh key in https://github.com/settings/ssh
+</span><span class='line'>$ ssh -T git@github.com check if the ssh worked.
+</span><span class='line'># you should see something like this:
+</span><span class='line'>  # Hi chiwen! You've successfully authenticated, but GitHub does not provide shell access.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step12: install Rails
+Since Rails ships with so many dependencies these days, we&rsquo;re going to need to install a Javascript runtime like NodeJS. This lets you use Coffeescript and the Asset Pipeline in Rails which combines and minifies your javascript to provide a faster production environment.</p>
+
+<p>To install NodeJS, we&rsquo;re going to add it using the official repository:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+</span><span class='line'>$ sudo apt-get install -y nodejs
+</span><span class='line'>$ gem install rails -v 4.2.6
+</span><span class='line'>$ rails -v</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step13: install Postgresql</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo sh -c "echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' &gt; /etc/apt/sources.list.d/pgdg.list"
+</span><span class='line'>$ wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+</span><span class='line'>$ sudo apt-get update
+</span><span class='line'>$ sudo apt-get install postgresql-common
+</span><span class='line'>$ sudo apt-get install postgresql-9.5 libpq-dev</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step14: create pssql user</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#replace the `apps` to the username you want
+</span><span class='line'>$ sudo -u postgres createuser apps -s
+</span><span class='line'>
+</span><span class='line'># If you would like to set a password for the user, you can do the following
+</span><span class='line'>$ sudo -u postgres psql
+</span><span class='line'>$ postgres=# \password chris</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step15: install passenger and nginx(source from <a href="https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/nginx/oss/trusty/install_passenger.html">https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/nginx/oss/trusty/install_passenger.html</a>)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
+</span><span class='line'>$ sudo apt-get install -y apt-transport-https ca-certificates
+</span><span class='line'>
+</span><span class='line'># Add our APT repository
+</span><span class='line'>$ sudo sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main &gt; /etc/apt/sources.list.d/passenger.list'
+</span><span class='line'>$ sudo apt-get update
+</span><span class='line'>
+</span><span class='line'># Install Passenger + Nginx
+</span><span class='line'>$ sudo apt-get install -y nginx-extras passenger</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step16: configuration passenger</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo vim /etc/nginx/nginx.conf
+</span><span class='line'># uncomment below line.
+</span><span class='line'># include /etc/nginx/passenger.conf;
+</span><span class='line'>
+</span><span class='line'># restart the server
+</span><span class='line'>$ sudo service nginx restart</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step17: check installation</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo /usr/bin/passenger-config validate-install
+</span><span class='line'># you should see all passed like below
+</span><span class='line'>  * Checking whether this Passenger install is in PATH... ✓
+</span><span class='line'>  * Checking whether there are no other Passenger installations... ✓
+</span><span class='line'>$ sudo /usr/sbin/passenger-memory-stats
+</span><span class='line'># you should see nginx and passenger is having some process running.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step18: deploying using capistrano</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>local$ cap staging deploy:check
+</span><span class='line'># create database.yml under /home/apps/myguide/shared/config and paste the local setting to here.
+</span><span class='line'>#run again
+</span><span class='line'>local$ cap staging deploy:check
+</span><span class='line'>$ $ createdb myguide-staging
+</span><span class='line'>local$ cap staging deploy</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step19: change root in nginx.conf</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi /etc/nginx/nginx.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Trouble shooting:
+From the commandline you can run <code>nginx -c /etc/nginx/nginx.conf -t</code> to have nginx check your configuration for errors.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AWS Training Essential]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/07/23/aws-training-essential/"/>
+    <updated>2016-07-23T09:31:56+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/07/23/aws-training-essential</id>
+    <content type="html"><![CDATA[<p>Region &lt; AZ(Cluster of Data Center) &lt; Data Center</p>
+
+<p>DR(災難備援)</p>
+
+<p>53 is DNS Port</p>
+
+<p>EC2 is a compute node, charge rate is hourly based.</p>
+
+<p>Globe level:
+Edge location:
+  Route 53
+  CloudFront
+Region:
+  AMI
+  S3
+AZ:
+  EC2 EBS</p>
+
+<p>EBS is the persistance storage of EC2, connect thru network, EC2 instance store is in the same rake of EC2. EBS is more recommandated. AMI will describe it&rsquo;s root device is EBS or instance storage.</p>
+
+<p>can instance store backup.</p>
+
+<p>reboot: same EC2 instance remain.
+stop/start: will reassign a new EC2 instance.</p>
+
+<p>Security:
+  user based policy: IAM, who can do what in which resources(high recommandated, easier to manage)
+  resource baseb policy: who can do what
+  when two policy conflict, use the most restricted one.
+  Enable MFA for privilige user</p>
+
+<p>RDS is powered by EC2 and EBS behind in sceen
+Auto scaling is Horizontal scaling, add or reduce number of instance</p>
+
+<p>self pace learning</p>
+
+<p>run.qwiklab.com</p>
+
+<p><a href="https://742710798012.signin.aws.amazon.com/console">https://742710798012.signin.aws.amazon.com/console</a></p>
+
+<p>VPC Endpoint 可以讓VPC中的node可以不用透過public network 去連接 S3.</p>
+
+<p>Security Group v.s. Network ACLs</p>
+
+<p>traffic path:
+instance &lt; security group &lt; network ACLs &lt; route table &lt; public IP or igw</p>
+
+<p>NAT Gatwway(managed service) instead of NAT Server(actually a EC2 instance)</p>
+
+<p>A record vs CNAME vs ALIAS
+A record: map to IP address
+ALIAS: map to DNS name</p>
+
+<p>availibility -> 通常指系統
+durability -> 通常指data</p>
+
+<p>data at transit -> thru HTTPS to secure data when data transition
+data at rest -> encrype when store data</p>
+
+<p>IAM user:
+  credential:
+    username and password
+    access key / security key
+  can be a real user or a service (e.g. EC2)</p>
+
+<p>IAM role:
+  trusted entity: 誰可以用這個role: AWS resource, AWS account, faderation user(authentication outside AWS, but get authorization thru STS)
+  policy:</p>
+
+<p>Bastion Host:
+  從外面連到web tier的跳板</p>
+
+<p>cloudwatch logs:
+  logs -> metrics filter -> metrics -> alarm -> email</p>
+
+<p>Make Bastion always availiable: set ELB min:1 max:1 desired:1</p>
+
+<p>managed service will more cost efficient than self managed service</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[D3.js]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/04/30/d3-dot-js/"/>
+    <updated>2016-04-30T09:30:34+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/04/30/d3-dot-js</id>
+    <content type="html"><![CDATA[<p>活動下一場是機器學習</p>
+
+<p>illustrator 畫圖後存成svg</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Neo4j and Graph Database]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/03/17/neo4j-and-graph-database/"/>
+    <updated>2016-03-17T19:15:27+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/03/17/neo4j-and-graph-database</id>
+    <content type="html"><![CDATA[<p>Keywords &amp; notes in the speech:</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Deploy_rails_to_ubuntu]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/03/15/deploy-rails-to-ubuntu/"/>
+    <updated>2016-03-15T12:18:24+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/03/15/deploy-rails-to-ubuntu</id>
+    <content type="html"><![CDATA[<p>when first time you access the ubuntu server by using the command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssh root@139.162.33.247
+</span><span class='line'>#this is mine, use you own, you can find the ip in Linode Manager -&gt; Remote Access -&gt; SSH Access</span></code></pre></td></tr></table></div></figure>
+
+
+<p>a ssh key will actomatically created in ~/.ssh/known_hosts, looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>139.162.33.247 ssh-rsa AAA.....(bunch of alphabet).........Rn</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Update New Version in Heroku]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/03/06/update-new-version-in-heroku/"/>
+    <updated>2016-03-06T12:24:41+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/03/06/update-new-version-in-heroku</id>
+    <content type="html"><![CDATA[<p>if we have two different server in heroku like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>➜  myflix git:(staging) git remote -v
+</span><span class='line'>origin  https://github.com/chiwenchen/myflix.git (fetch)
+</span><span class='line'>origin  https://github.com/chiwenchen/myflix.git (push)
+</span><span class='line'>production  https://git.heroku.com/chiwen-myflix.git (fetch)
+</span><span class='line'>production  https://git.heroku.com/chiwen-myflix.git (push)
+</span><span class='line'>staging https://git.heroku.com/chiwen-myflix-staging.git (fetch)
+</span><span class='line'>staging https://git.heroku.com/chiwen-myflix-staging.git (push)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>here is the whole process if we want to push a new version to staging server</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>➜  myflix git:(SOMEOTHER BRANCH) git branch staging # navigate to staging branch
+</span><span class='line'>
+</span><span class='line'>➜  myflix git:(staging) git add .
+</span><span class='line'>➜  myflix git:(staging) git commit -m 'new stable version'
+</span><span class='line'>➜  myflix git:(staging) git push
+</span><span class='line'>...
+</span><span class='line'>➜  myflix git:(staging) git push staging staging:master
+</span><span class='line'>...
+</span><span class='line'>➜  myflix git:(staging) heroku run rake db:migrate
+</span><span class='line'>...
+</span><span class='line'>➜  myflix git:(staging) heroku restart
+</span><span class='line'>...
+</span><span class='line'>Done!!</span></code></pre></td></tr></table></div></figure>
+
+
+<p>let&rsquo;s make another example to clarify the command full of <code>staging</code>&hellip;</p>
+
+<p>if we have a remote repo named: <code>live-remote</code>, and a local repo named: <code>live</code></p>
+
+<p>then the last command will be:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>➜  myflix git:(staging) git push live-remote live:master</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the additional :master here is saying push my local <code>live</code> branch into the master branch on the remote - note: heroku can only deploy from the master branch.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Decorator]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/02/24/decorator-for-model/"/>
+    <updated>2016-02-24T16:32:45+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/02/24/decorator-for-model</id>
+    <content type="html"><![CDATA[<p>For the typical situation, all the logic should only live in model layer, and controller only responsible on grap the data we need and show it in view.</p>
+
+<p>But in some situation, we will still need logic code in view layer. we can certainly do this, but this will make the view template too complicate than it should be and harder to read. so in this type of situation, we can use <code>decorator</code> to extract logic code from view template.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Create decorator</h2>
+
+
+<p>Firstly, we need to add a directory under app folder, like <code>/app/decorators/</code>, here wwe will make a <code>video_decorator.rb</code> for demonstrate.</p>
+
+<p>let&rsquo;s say before we build the decorator, there is a logic code in one of the view template look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">reviews</span><span class="o">.</span><span class="n">present?</span>
+</span><span class='line'>  <span class="s2">&quot;</span><span class="si">#{</span><span class="n">video</span><span class="o">.</span><span class="n">rating</span><span class="si">}</span><span class="s2"> / 5.0&quot;</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>  <span class="n">N</span><span class="o">/</span><span class="n">A</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can move it to decorator.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#in video_decorator.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">VideoDecorator</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:video</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">video</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@video</span> <span class="o">=</span> <span class="n">video</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">rating</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">reviews</span><span class="o">.</span><span class="n">present?</span>
+</span><span class='line'>      <span class="s2">&quot;</span><span class="si">#{</span><span class="n">video</span><span class="o">.</span><span class="n">rating</span><span class="si">}</span><span class="s2"> / 5.0&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="s2">&quot;N/A&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#in video.model, add a new method</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decorate_rating</span>
+</span><span class='line'>  <span class="no">VideoDecorator</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span><span class="o">.</span><span class="n">rating</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then back to the view template, we can replace the logic by</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">video</span><span class="o">.</span><span class="n">decorate_rating</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, the present code in view template is much more simple and readiable. also we can test the decorate code seperately now.</p>
+
+<h2>Draper gem</h2>
+
+
+<p>By using <code>draper</code> gem, we can now implement decorator more easily.</p>
+
+<p>Install <code>draper</code> gem by add it to <code>Gemfile</code> nad run <code>bunlde install</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="n">draper</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can trim our decorator to the code like below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">VideoDecorator</span> <span class="o">&lt;</span> <span class="no">Draper</span><span class="o">::</span><span class="no">Decorator</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">delegate_all</span>
+</span><span class='line'>  <span class="c1">#this will make all the method defined in original model also available here.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">decorate_rating</span>
+</span><span class='line'>    <span class="n">object</span><span class="o">.</span><span class="n">reviews</span><span class="o">.</span><span class="n">present?</span> <span class="p">?</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">object</span><span class="o">.</span><span class="n">rating</span><span class="si">}</span><span class="s2"> / 5.0&quot;</span> <span class="p">:</span> <span class="s2">&quot;N/A&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>More information and DSL, please see <a href='https://github.com/drapergem/draper'>Draper document</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Test Styles of Rails]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/02/23/test-styles-of-rails/"/>
+    <updated>2016-02-23T12:42:54+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/02/23/test-styles-of-rails</id>
+    <content type="html"><![CDATA[<p>There are three different testing style or process we use in developing rails app.</p>
+
+<h2>Outside in</h2>
+
+
+<p>The first is called outside in, this style means when we developing a new feature, we thinking in a integration level or business level first, by doing this, we can clarify the business value of this feature in the first place, than from here, this will drive us to implement a level deeper which is controller level to fulfill the need from the feature, and then one level deeper to model layer.</p>
+
+<p>The most common usecase of the approach is when we work with customer and the requiremnts is very clear, just write out the descriptions of the feature and implement it step by step will make the developing process more fluent.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Inside out</h2>
+
+
+<p>Second style is totally bottom up, we start from the most depth layer which is model, we write test description of each unit and then fulfill the test, once all the model we think is complete, then move to the controller layer and then to view template.</p>
+
+<p>The pros of this approach is we can start small, this will allow developer more focus on one thing and make it easier to complete, but the cons of this is some times when we move to next layer will find that some of our model method is useless and we lack some of the function in the other hand, this will become time comsumming and makes a lot of goes and back.</p>
+
+<h2>Meet in the middle</h2>
+
+
+<p>The third style takes a good balance between the previous two.</p>
+
+<p>In this approach, we firstly build out the view template, this give us a vision of how the web page will look like and imaging how people will interact with the site, and then we start from the controller to make the page alive, once we fiound the method is way too complicate for controller, we will then drop it to model layer, also make unit test for the function, once the unit is well tested, we then back to the controller layer to implement it. after the controller layer and model layer is finished and tested, we then start to write feature test to mimic the user experience.</p>
+
+<p>By doing this, we will have clear business vision in first place just like <strong>Outside in</strong> style, as well as having the pros of easy to start small just like <strong>Inside out</strong>, at the same time, won&rsquo;t waste too much time on guessing what method to work on.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Elasticsearch With Rails]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/02/17/elasticsearch-with-rails/"/>
+    <updated>2016-02-17T15:30:25+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/02/17/elasticsearch-with-rails</id>
+    <content type="html"><![CDATA[<p>To implement more complicate or advanced search engine in rails app, <code>elasticsearch</code> is a very great open source search and analysis tool with full function.</p>
+
+<h2>Set up Elasticsearch with rails</h2>
+
+
+<p>To set up elasticsearch, firstly we need to add this two gems in <code>Gemfile</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;elasticsearch-model&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;elasticsearch-rails&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are more options in the wild, for instance, <code>tire</code> is another choice, also you can find tutorial for <code>tire</code> in Rails Cast.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Install Elastic on Mac</h2>
+
+
+<p>Here we use homwbrew to install elastic on Mac, you can find more ways to get the same purpose, also on Linux and windows.</p>
+
+<p>Before the installation, make sure your java version is 1.7 or above.</p>
+
+<p>Type below commands in terminal to start installation process.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">brew</span> <span class="n">update</span>
+</span><span class='line'><span class="n">brew</span> <span class="n">install</span> <span class="no">Caskroom</span><span class="o">/</span><span class="n">cask</span><span class="o">/</span><span class="n">java</span>
+</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="n">brew</span> <span class="n">install</span> <span class="n">elasticsearch</span>
+</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="n">elasticsearch</span> <span class="o">--</span><span class="n">config</span><span class="o">=</span><span class="sr">/usr/</span><span class="n">local</span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">elasticsearch</span><span class="o">.</span><span class="n">yml</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To test if your installation is good, run this command and you should see it returns a hash-like data.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">curl</span> <span class="o">-</span><span class="n">X</span> <span class="no">GET</span> <span class="ss">http</span><span class="p">:</span><span class="sr">//</span><span class="ss">localhost</span><span class="p">:</span><span class="mi">9200</span><span class="o">/</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Add elasticsearch service in CircleCI</h2>
+
+
+<p>In <code>circle.yml</code> file, add elasticsearch service.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">machine</span><span class="p">:</span>
+</span><span class='line'>  <span class="ss">ruby</span><span class="p">:</span>
+</span><span class='line'>    <span class="ss">version</span><span class="p">:</span> <span class="mi">2</span><span class="o">.</span><span class="mi">1</span><span class="o">.</span><span class="mi">7</span>
+</span><span class='line'>  <span class="ss">services</span><span class="p">:</span>
+</span><span class='line'>    <span class="o">-</span> <span class="n">elasticsearch</span>
+</span><span class='line'><span class="ss">deployment</span><span class="p">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Add Elasticsearch on Heroku add-on</h2>
+
+
+<p>you can either use Heroku&rsquo;s UI to add add-on or just simple use this command.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">heroku</span> <span class="ss">addons</span><span class="p">:</span><span class="n">create</span> <span class="n">searchbox</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Add initializer in app</h2>
+
+
+<p>The best way to set up the Elasticsearch client is to create an initialize.</p>
+
+<p>in <code>config/initializers/elasticsearch.rb</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Model</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span>
+</span><span class='line'>  <span class="k">if</span> <span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">staging?</span> <span class="o">||</span> <span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span>
+</span><span class='line'>    <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Client</span><span class="o">.</span><span class="n">new</span> <span class="ss">url</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;SEARCHBOX_URL&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">development?</span>
+</span><span class='line'>    <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Client</span><span class="o">.</span><span class="n">new</span> <span class="ss">log</span><span class="p">:</span> <span class="kp">true</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Client</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Set up model to connect with Elasticsearch</h2>
+
+
+<p>add this four lines in your model to establish the connection between your model and elasticsearch server.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#This will extend the model with functionality related to Elasticsearch.</span>
+</span><span class='line'><span class="kp">include</span> <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Model</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">include</span> <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">Serializing</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#automatically update the index whenever the record changes</span>
+</span><span class='line'><span class="kp">include</span> <span class="no">Elasticsearch</span><span class="o">::</span><span class="no">Model</span><span class="o">::</span><span class="no">Callbacks</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#thsi will specify different index name for each environment</span>
+</span><span class='line'><span class="n">index_name</span> <span class="o">[</span><span class="s1">&#39;YOURAPPNAME&#39;</span><span class="p">,</span> <span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">].</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By adding this, now we got <code>__elasticsearch__</code> proxy to communicate with elasticsearch server.</p>
+
+<p>For instance, now we can try those commands in the <code>rails console</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Video</span><span class="o">.</span><span class="n">__elasticsearch__</span><span class="o">.</span><span class="n">import</span>
+</span><span class='line'><span class="c1">#this will synchronize the records form our database with elasticsearch server</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Video</span><span class="o">.</span><span class="n">__sleaticsearch__</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Inception&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#this will give back records that match the search term, but you will find it hard to read</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Video</span><span class="o">.</span><span class="n">__sleaticsearch__</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Inception&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'><span class="c1">#this will also give back results that match the term, but with the form we more familiar with</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Overwrite the json format</h2>
+
+
+<p>By default, if we run <code>Video.import</code>, this will send the full information of the objects to elasticsearch server. However, this will cause the speed of searching lower and we only want to send datas to elasticsearch that we want search on, for this purpose, we can specify the columns we want to send to elasticsearch by overwrite the <code>as_indexed_json</code> method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">as_indexed_json</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{})</span>
+</span><span class='line'>  <span class="n">as_json</span><span class="p">(</span><span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:title</span><span class="p">,</span> <span class="ss">:description</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1">#as_json is a rails method that will turn Model object to json format so that this String object will be able to send to the wild</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Now if we reimport the datas, it will only send title and description of each object to elasticsearch.</p>
+
+<h2>Overwrite search method</h2>
+
+
+<p>In most of the case, we will want to redesign the search method, for instance, add filter to filter the poblish date of the films or age of users, define the search field and so on. to do so, here is the simple example for how to overwrite the search method in your class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{})</span> <span class="c1">#options is to accept some of the parameter for specific usage.</span>
+</span><span class='line'>  <span class="n">search_definition</span><span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="ss">query</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">multi_match</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="ss">query</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+</span><span class='line'>        <span class="ss">fields</span><span class="p">:</span> <span class="p">{</span><span class="ss">:title</span><span class="o">^</span><span class="mi">100</span><span class="p">,</span> <span class="ss">:description</span><span class="o">^</span><span class="mi">50</span><span class="p">},</span>
+</span><span class='line'>        <span class="ss">operator</span><span class="p">:</span> <span class="s1">&#39;or&#39;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">present?</span> <span class="o">&amp;&amp;</span> <span class="n">options</span><span class="o">[</span><span class="ss">:review</span><span class="o">].</span><span class="n">present?</span>
+</span><span class='line'>    <span class="n">search_definition</span><span class="o">[</span><span class="n">query</span><span class="o">][</span><span class="n">multi_match</span><span class="o">][</span><span class="n">fields</span><span class="o">]</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;reviews.body&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">__elasticsearch__</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">search_definition</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Speed Up Coding With Sublime Text 2]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/11/13/speed-up-coding-with-sublime-text-2/"/>
+    <updated>2015-11-13T18:04:55+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/11/13/speed-up-coding-with-sublime-text-2</id>
+    <content type="html"><![CDATA[<p><strong>switch between groups: </strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>control + GROUP_NUMBER</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>switch to sidebar</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>control + 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>switch between tabs:</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>option + TAB_NUMBER</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>search and open file</strong></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>option + p</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h4>This is title</h4>
+
+
+<p>2rmwkfmeiowrfjeorfelr;fkp</p>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>this is code</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[HAML - Elegant and Simple Markup Language]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/08/13/haml-elegant-and-simple-markup-language/"/>
+    <updated>2015-08-13T23:29:23+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/08/13/haml-elegant-and-simple-markup-language</id>
+    <content type="html"><![CDATA[<p><code>ERB</code> is the most common markup language for rails, but since it inherit most of the script from <code>HTML</code>, it will becomes bulky. so here is why we can use <code>haml</code> alternatively.</p>
+
+<p>Differ from <code>erb</code>, haml use as simple as possible script to describe the markup, and some of the convention to even simpler the code. We will demonstrate main deviation here to show the power of <code>hame</code>. It might seems odd at first, but get used to it, it will really help you to speed up and higher the readability.</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ERB</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;&lt;%=</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="sx">%&gt;&lt;/strong&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'>HAML
+</span><span class='line'><span class="nt">%strong</span><span class="p">=</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here shows two ability <code>haml</code> gives us, one is it use <code>%</code> instead of the open and close tag, and this works for every tag in html, <code>%body</code>, <code>%div</code>, <code>%a</code>&hellip;you name it. Second, instead using <code>&lt;%= %&gt;</code> to wrap the ruby code, it uses <code>=</code>, anything after equal sign will consider as ruby script.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ERB</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">strong</span> <span class="n">class</span><span class="o">=</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;message&#39;</span><span class="o">&gt;</span><span class="no">HELLO</span> <span class="no">WORLD</span><span class="o">&lt;</span><span class="sr">/strong&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'>HAML
+</span><span class='line'><span class="nt">%strong</span><span class="nc">.code</span><span class="nf">#message</span> HELLO WORLD
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Because <code>class</code> and <code>id</code> are so common in template file, so we use <code>.</code> to represent <code>class=</code> and <code>#</code> to represent <code>id=</code>, and also notice that there is only a space before <code>HELLO WORLD</code>, so it is just a normal string, not a ruby code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ERB</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">div</span> <span class="n">class</span><span class="o">=</span> <span class="s1">&#39;content&#39;</span><span class="o">&gt;</span><span class="no">HELLO</span> <span class="no">WORLD</span><span class="o">&lt;</span><span class="sr">/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'>HAML
+</span><span class='line'><span class="nc">.content</span> HELLO WORLD
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Also the <code>div</code> is so popular, so this time, haml make it even easier, just ignore it, and haml will consider it as div by default!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ERB</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sx">% if </span><span class="n">current_user</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= &quot;Hi, </span><span class="si">#{</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="sx"> %&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sx">% end </span><span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'>HAML
+</span><span class='line'><span class="p">-</span> <span class="k">if</span> <span class="n">current_user</span><span class="o">.</span><span class="n">empty</span>
+</span><span class='line'>  <span class="p">=</span> <span class="s2">&quot;Hi </span><span class="si">#{</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we want insert ruby logic into the template, and do not want to show it in screen, we use <code>-</code> before the logic, also unlike erb will need a <code>&lt;% end %&gt;</code>, we can just leave it, instead, haml uses indentation to identify the scope relation.</p>
+
+<p>You can see how <code>haml</code> helps to keep code simpler and reduce noises, but here only demonstrate the most common features of <code>haml</code>, there are lot more in <a herf= 'haml.info/docs/yardoc/file.REFERENCE.html'>HAML REFERENCIAL</a>. check it out if you want to learn more.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Random Token]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/08/13/random-token/"/>
+    <updated>2015-08-13T22:22:49+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/08/13/random-token</id>
+    <content type="html"><![CDATA[<p>To expose raw data to user is always not a ideal situation, for example, if our app can show every user&rsquo;s profile, and the url of each user&rsquo;s profile looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">www</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then the user will be able to see the <code>id</code> of every user directly, if they want, they can even change the id on the url and see other&rsquo;s profile, or try to predict the total member of our app, this might be the business sensetive information we want to hide. so we need a way to keep this kind of information away from users, a good way to accomplish this is to use <code>Random Token</code>. by using random token, we wrap our information by a meanless string to keep it away from user, instead of <code>id</code> strightly shown on url, they will see something like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">www</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="mi">124343</span><span class="n">njkdsdw</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+
+
+<h2>Generate and use Random Token</h2>
+
+
+<p>Firstly, we need to use migration to create a <code>token</code> column for the target, for example, the <code>User</code> model:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="err">$</span> <span class="n">rails</span> <span class="n">g</span> <span class="n">migration</span> <span class="n">add_token_to_users</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then run <code>db:migrate</code>, this will add a column <code>token</code> for us. Next step, we need to automatically generate the random token every time we add a new user account. so let&rsquo;s dive into User&rsquo;s model and add some code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">after_create</span> <span class="ss">:generate_token</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">generate_token</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="no">SecureRandom</span><span class="o">.</span><span class="n">urlsafe_base64</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>This method will give us the random token everytime right after we call <code>User.create</code> method, so it is very important to use <code>after_create</code>, not <code>after_save</code>, because if we do so, the token will change even we update the user&rsquo;s data, remenber, update also calls <code>save</code> method behind the scene, and that is what we don&rsquo;t want in this situation.</p>
+
+<p>PS: Here are some more <a href='http://ruby-doc.org/stdlib-1.9.2/libdoc/securerandom/rdoc/SecureRandom.html'>Ruby doc - SecureRandom</a> that we can use.</p>
+
+<p>Next, we have to overwrite the to_param method in User model.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">to_param</span>
+</span><span class='line'>  <span class="n">token</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And also in user&rsquo;s controller, before the implementation, we use <code>find</code> to grab id and search for target user, now we have to use <code>token</code> instead, so we also need to rewrite this part, for example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">User</span><span class="o">.</span><span class="n">find_by_token</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:token</span><span class="o">]</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Final step, before we create the token column, we already have some existing data, those old data will leave the token blank at the time we add this new column. to fix it, open the migration file and do so to manually let app to generate token for each old user:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">AddTokenToUser</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">add_column</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">:token</span><span class="p">,</span> <span class="ss">:string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="no">User</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">user</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">user</span><span class="o">.</span><span class="n">generate_token</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s all, the random token is ready to serve.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Model - Self Association]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/08/13/rails-model-self-accosiation/"/>
+    <updated>2015-08-13T19:00:39+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/08/13/rails-model-self-accosiation</id>
+    <content type="html"><![CDATA[<p>In Facebook, Twitter or other social netwrking website, we can easilly follw someone, make friend with someone. this is quite a common feature in nowaday, and intuitively as well, but down to the code level, you will find it&rsquo;s not so simple as appearance. to do this, we will need <code>self accosiation</code> to accomplish it, this is a technique allowing us to make one object accosiate with another object in the same model.</p>
+
+<p>In rails, basically we need two concept to achive this goal, one is the HMT stands for <code>has many through</code> accosiation and customize arguments.</p>
+
+<!-- more -->
+
+
+<p>Let&rsquo;s think of a scenario. Tom are in a online videos store, and he want to be able to follow someone who always makes great comments on movies, because the critic helps Tom to make decision on pickng movies a lot.</p>
+
+<p>To do so, first we need a new table called <code>Relationship</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="err">$</span> <span class="n">rails</span> <span class="n">g</span> <span class="n">migration</span> <span class="n">create_relationships</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">CreateRelationships</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">create_table</span> <span class="ss">:relationships</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:leader_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:follower_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">timestamps</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run <code>rake db:migrate</code></p>
+
+<p>In this table, <code>leader</code> will be the critic in this scenario, and Tom are the <code>follower</code>, so this will offer us a place to record the relationships we create later.</p>
+
+<p>Next step, we start to make accosiations in our model.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:following_relationships</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="s1">&#39;Relationship&#39;</span><span class="p">,</span> <span class="ss">foreign_key</span><span class="p">:</span> <span class="s1">&#39;follower_id&#39;</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:leading_relationships</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="s1">&#39;Relationship&#39;</span><span class="p">,</span> <span class="ss">foreign_key</span><span class="p">:</span> <span class="s1">&#39;leader_id&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By adding those code, we can do something in rails console:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">tom</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;Tom&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">tom</span><span class="o">.</span><span class="n">following_relationships</span>
+</span><span class='line'><span class="c1"># this will return the relationships array that Tom is the follower.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By customize the <code>class_name</code> and <code>foreign_key</code>, we can skip the rails convention and use <code>following_relationships</code> as virtual attribute, it will actually look at the <code>Relationship</code> model and search for the item that the <code>follower_id</code> is same as the Tom&rsquo;s id.</p>
+
+<p>On the other side in <code>Relationship</code> model, we add the code below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Relationship</span> <span class="o">&lt;</span> <span class="no">Activerecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="n">follower</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="n">leader</span><span class="p">,</span> <span class="ss">class_name</span><span class="p">:</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By adding this, we can do some manipulate in rails console too.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">relationship</span> <span class="o">=</span> <span class="no">Relationship</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'><span class="n">relationship</span><span class="o">.</span><span class="n">follower</span>
+</span><span class='line'><span class="c1">#this will return the user that the id is same as the follower_id of relationship object, same as .leader method</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Send Email From Your App]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/08/13/send-email-from-your-app/"/>
+    <updated>2015-08-13T15:30:01+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/08/13/send-email-from-your-app</id>
+    <content type="html"><![CDATA[<p>It is quite common that we receive an mail from some websites, today we will create a system to send out emails to our user from our own app. the sample we give today is to send out a welcome message to user when they first register a new account.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Send out email from app</h2>
+
+
+<p>like the code below, we add line 4 to call the <code>AppMail.send_welcome_message</code>. this will send out a mail to <code>@user</code>. remenber to add <code>.deliver</code> to actually send the mail.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'> <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">strong_params</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@user</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>      <span class="no">AppMailer</span><span class="o">.</span><span class="n">send_welcome_message</span><span class="p">(</span><span class="vi">@user</span><span class="p">)</span><span class="o">.</span><span class="n">deliver</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="s1">&#39;new&#39;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>we didn&rsquo;t define the method yet, let&rsquo;s do it now. we have to create a file called <code>app_mailer.rb</code> under <code>app/mailers</code>, inside the file&hellip;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">AppMailer</span> <span class="o">&lt;</span> <span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">send_welcome_message</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@new_user</span> <span class="o">=</span> <span class="n">new_user</span>
+</span><span class='line'>    <span class="n">mail</span> <span class="ss">from</span><span class="p">:</span> <span class="s1">&#39;myflix@google.com&#39;</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="vi">@new_user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="ss">subject</span><span class="p">:</span> <span class="s1">&#39;welcome to myflix&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here we use <code>mail</code> method to define the sender and the recipient, also the title of the mail. next we will write the content. it&rsquo;s quite similar to the view template, so let&rsquo;s create a folder named <code>app_mailer</code> as well, and the file under the folder named <code>send_welcome_message.html.haml</code> as well as the defined method. inside the file&hellip;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'><span class="nn">!!! 5</span>
+</span><span class='line'><span class="nt">%html</span>(<span class="na">lang=</span><span class="s">&quot;en-US&quot;</span>)
+</span><span class='line'>  <span class="nt">%body</span>
+</span><span class='line'>    <span class="nt">%p</span> Welcome to the Myflix, <span class="si">#{</span><span class="vi">@new_user</span><span class="o">.</span><span class="n">name</span><span class="si">}</span>
+</span><span class='line'>    <span class="nt">%p</span> Enjoy the videos!0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>if we didn&rsquo;t do any mail configuration, we can only verify the mail on rails server console after executed it.</p>
+
+<p>it will looks some thing like&hellip;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">AppMailer</span><span class="c1">#send_welcome_message: processed outbound mail in 13.1ms</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Sent</span> <span class="n">mail</span> <span class="n">to</span> <span class="n">carol</span><span class="vi">@example</span><span class="o">.</span><span class="n">com</span> <span class="p">(</span><span class="mi">16</span><span class="o">.</span><span class="mi">8</span><span class="n">ms</span><span class="p">)</span>
+</span><span class='line'><span class="ss">Date</span><span class="p">:</span> <span class="no">Thu</span><span class="p">,</span> <span class="mi">13</span> <span class="no">Aug</span> <span class="mi">2015</span> <span class="mi">15</span><span class="p">:</span><span class="mi">14</span><span class="p">:</span><span class="mi">46</span> <span class="o">+</span><span class="mi">0800</span>
+</span><span class='line'><span class="ss">From</span><span class="p">:</span> <span class="n">myflix</span><span class="vi">@google</span><span class="o">.</span><span class="n">com</span>
+</span><span class='line'><span class="ss">To</span><span class="p">:</span> <span class="n">carol</span><span class="vi">@example</span><span class="o">.</span><span class="n">com</span>
+</span><span class='line'><span class="no">Message</span><span class="o">-</span><span class="ss">ID</span><span class="p">:</span> <span class="o">&lt;</span><span class="mi">55</span><span class="n">cc43e6c2b46_50a88082dbf81929c</span><span class="vi">@IvandeMacBook</span><span class="o">-</span><span class="no">Air</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">mail</span><span class="o">&gt;</span>
+</span><span class='line'><span class="ss">Subject</span><span class="p">:</span> <span class="n">welcome</span> <span class="n">to</span> <span class="n">myflix</span>
+</span><span class='line'><span class="no">Mime</span><span class="o">-</span><span class="ss">Version</span><span class="p">:</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
+</span><span class='line'><span class="no">Content</span><span class="o">-</span><span class="ss">Type</span><span class="p">:</span> <span class="n">text</span><span class="o">/</span><span class="n">html</span><span class="p">;</span>
+</span><span class='line'> <span class="n">charset</span><span class="o">=</span><span class="no">UTF</span><span class="o">-</span><span class="mi">8</span>
+</span><span class='line'><span class="no">Content</span><span class="o">-</span><span class="no">Transfer</span><span class="o">-</span><span class="ss">Encoding</span><span class="p">:</span> <span class="mi">7</span><span class="n">bit</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;!</span><span class="no">DOCTYPE</span> <span class="n">html</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">html</span> <span class="n">lang</span><span class="o">=</span><span class="s1">&#39;en-US&#39;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="n">body</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Welcome</span> <span class="n">to</span> <span class="n">the</span> <span class="no">Myflix</span><span class="p">,</span> <span class="n">carol</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'><span class="sr">    &lt;p&gt;Enjoy the videos!&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sr">/body&gt;</span>
+</span><span class='line'><span class="sr">&lt;/</span><span class="n">html</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Mailer Configuration - Development env</h2>
+
+
+<p>In development environment, because we are working locally, so we will not actually sending out any mail, but only verify the simulated mail in rails server console is not good enough, we can not see if it&rsquo;s right if we add more fancy look like some css or images. so we need a gem called <code>letter_opener</code> and further configure it into the environmental config file.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">group</span> <span class="ss">:development</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="n">letter_opener</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+run <code>bundle install</code> to install the gem</p>
+
+<p>and add this line to the <code>config/environments/development.rb</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">action_mailer</span><span class="o">.</span><span class="n">delivery_method</span> <span class="o">=</span> <span class="ss">:letter_opener</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Restart the rails server and if we create a new account again, it will show the mail in the browser which is better for us to see the context and the style.</p>
+
+<h2>Mailer Configuration - Production env</h2>
+
+
+
+
+<h2>Rspec the mailer sending function</h2>
+
+
+<p>once we done the ActionMailer setting, we can write the test suit to verify the mailer is working properly. here is the sample of how to write a whole test suit for mailer.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">context</span> <span class="s1">&#39;sends mail&#39;</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">after</span><span class="p">{</span><span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">deliveries</span><span class="o">.</span><span class="n">clear</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">it</span> <span class="s1">&#39;sends out the email&#39;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">post</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="no">Fabricate</span><span class="o">.</span><span class="n">attributes_for</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;sammy&#39;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">expect</span><span class="p">(</span><span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">deliveries</span><span class="o">.</span><span class="n">last</span><span class="p">)</span><span class="o">.</span><span class="n">should_not</span> <span class="n">be_blank</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">it</span> <span class="s1">&#39;sends the email to the right person&#39;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">sammy</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="o">.</span><span class="n">attributes_for</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;sammy&#39;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">post</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">sammy</span>
+</span><span class='line'>        <span class="n">expect</span><span class="p">(</span><span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">deliveries</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">to</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="o">[</span><span class="n">sammy</span><span class="o">[</span><span class="ss">:email</span><span class="o">]]</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">it</span> <span class="s1">&#39;sends out the correct context&#39;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">sammy</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="o">.</span><span class="n">attributes_for</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;sammy&#39;</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">post</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">sammy</span>
+</span><span class='line'>        <span class="n">expect</span><span class="p">(</span><span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">deliveries</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">body</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="kp">include</span><span class="p">(</span><span class="s2">&quot;Welcome to the Myflix, sammy&quot;</span><span class="p">,</span> <span class="s2">&quot;Enjoy the videos&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">it</span> <span class="s1">&#39;does not sends out the mail if the register input is not valid&#39;</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">carol</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="o">.</span><span class="n">attributes_for</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">post</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">user</span><span class="p">:</span> <span class="n">carol</span>
+</span><span class='line'>        <span class="n">expect</span><span class="p">(</span><span class="no">ActionMailer</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">deliveries</span><span class="o">.</span><span class="n">last</span><span class="p">)</span><span class="o">.</span><span class="n">should</span> <span class="n">be_blank</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One special thing here is in line2, <code>after</code> script.
+the reason to add this is because typically when we run normal specs, thess specs are transactions, that means after each spec, the database will automatically rollback to the initial state, this will avoid specs to interfere each other. But here we are sending email in specs, and each time we send a email, we are actually save those emails into the queue <code>ActionMailer::Base.deliveries</code>, and this is not part of the database transaction, so this will not be rollback. That&rsquo;s why we need to make sure the queue will cleared after each spec test.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Feature Spec With Capybara]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/07/26/feature-spec-with-capybara/"/>
+    <updated>2015-07-26T09:20:06+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/07/26/feature-spec-with-capybara</id>
+    <content type="html"><![CDATA[<p>Unit test can only test the individual unit like actions inside controllers or models, it helps us to make sure the single unit is working properly. But a application will never function rely on one single unit, interaction is every where, any feature will need controller, model and view work together to perform a complete functionality, so we must have a way to simulation the whole process, and that is exactually what feature spec does.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Read offical documentation</h2>
+
+
+<p>Here is the <a href='https://www.relishapp.com/rspec/rspec-rails/docs/feature-specs/feature-spec'>feature spec</a> document from Relish, and we will use <code>capybara gem</code> to accomplish the feature spec, and here is the <a href='http://www.rubydoc.info/github/jnicklas/capybara/master#the-dsl'>capybara</a> document to reference the DSL.</p>
+
+<p>below is a simple example to show how we use feature spec to mimic the user experience of single request on our website. this will firstly visit the <code>ROOT/widgets/new</code> and the fill in the name column with the value you gave and submit the form by pressing the button, and in the end of the test, we will expect some content to been shown on the screen to exam if the whole process is working good.</p>
+
+<p>This example also shows that the feature spec is actually written in high level but will actually test all the conponents (models, controllers, views, routes&hellip;etc) that related to the requests.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s2">&quot;rails_helper&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">feature</span> <span class="s2">&quot;Widget management&quot;</span>  <span class="k">do</span>
+</span><span class='line'>  <span class="n">scenario</span> <span class="s2">&quot;User creates a new widget&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">visit</span> <span class="s2">&quot;/widgets/new&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">fill_in</span> <span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="ss">:with</span> <span class="o">=&gt;</span> <span class="s2">&quot;My Widget&quot;</span>
+</span><span class='line'>    <span class="n">click_button</span> <span class="s2">&quot;Create Widget&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">have_text</span><span class="p">(</span><span class="s2">&quot;Widget was successfully created.&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From this <a href='https://github.com/chiwenchen/myflix/tree/staging/spec/features'>project</a>, you can see more example of using capybara to test features.</p>
+
+<p>Also, here is a great <a href='https://gist.github.com/zhengjia/428105'>Capybara cheat sheet</a></p>
+
+<h2>Set up feature spec environment</h2>
+
+
+<p>First step is to install <code>capybara</code> gem, add below lines into our <code>Gemfile</code> will scope the capybara only in test environment which is the only env we will need capybara.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">group</span> <span class="ss">:test</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;capybara&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Install launchy gem</h2>
+
+
+<p><code>launchy</code> gem is equipped with a very powerful method called <code>save_and_open_page</code>, if we put this method in any point of our spec, when it excuted, it will open the current state of the page in real brower, so we can visually see what is going on in our test. this is a better way for us when debugging.</p>
+
+<h2>Navigators</h2>
+
+
+
+
+<h4>Use ID</h4>
+
+
+<p>In some cases, we might have no identical id or label to aim the target we want, most simple way is to append a id for the item we want to identify.</p>
+
+<p>For example&hellip;</p>
+
+<p>in view:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">=</span> <span class="n">text_field_tag</span> <span class="s1">&#39;queue_item[][position]&#39;</span><span class="p">,</span> <span class="n">queue_item</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="s2">&quot;video_</span><span class="si">#{</span><span class="n">queue_item</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>in spec:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">fill_in</span> <span class="s2">&quot;video_</span><span class="si">#{</span><span class="n">inception</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="ss">with</span><span class="p">:</span> <span class="mi">2</span>
+</span><span class='line'><span class="n">expect</span><span class="p">(</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;#video_</span><span class="si">#{</span><span class="n">inception</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h4>Use data attribute</h4>
+
+
+<p>instead of changing the <code>id</code> to allow rspec can aim the item we want, we can append a new attribute called <code>data attributes</code>, it will looks something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">=</span> <span class="n">text_field_tag</span> <span class="s1">&#39;queue_item[][position]&#39;</span><span class="p">,</span> <span class="n">queue_item</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="ss">data</span><span class="p">:</span> <span class="p">{</span><span class="ss">video_id</span><span class="p">:</span> <span class="n">video_</span><span class="c1">#{inception.id}}</span>
+</span><span class='line'><span class="c1">#data is a hash, the video_id is the key!!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>but with data attribute, we can not directly manipulate the field, for example <code>fill_in</code>,because it is only works for <code>id</code>, <code>name</code> or <code>label</code>. Instead, we need to <code>find</code> the field first, so we can do this in feature spec:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">find</span><span class="p">(</span><span class="s2">&quot;input[data-video-id=&#39;</span><span class="si">#{</span><span class="n">inception</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#chain a set method can direct set the value of the found item.</span>
+</span><span class='line'><span class="n">expect</span><span class="p">(</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;input[data-video-id=&#39;</span><span class="si">#{</span><span class="n">inception</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h4>Use xpath</h4>
+
+
+<p>Capybara also allows us to use <code>xpath</code> selector, here is the <a href='https://github.com/jnicklas/capybara#xpath-css-and-selectors'>reference</a> and here is the <a href='http://www.w3schools.com/xsl/xpath_syntax.asp'>w3schools xpath tutorial</a>.</p>
+
+<p>asserting value using xpath.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">with_in</span><span class="p">(</span><span class="ss">:xpath</span><span class="p">,</span> <span class="s2">&quot;//tr[contains(.,&#39;</span><span class="si">#{</span><span class="n">monk</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&#39;)]&quot;</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'><span class="c1">#this line means find tr row which contains the monk.title string</span>
+</span><span class='line'>  <span class="n">fill_in</span> <span class="s1">&#39;queue_item[][position]&#39;</span><span class="p">,</span> <span class="ss">with</span><span class="p">:</span> <span class="mi">3</span>
+</span><span class='line'>  <span class="c1">#and fill in the value in the item which with specific id or name  </span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>examing value using xpath.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">expect</span><span class="p">(</span><span class="ss">:xpath</span><span class="p">,</span> <span class="s2">&quot;//tr[contains(.,&#39;</span><span class="si">#{</span><span class="n">monk</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&#39;)]//input[@type=&#39;text&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Macros and Shared Examples]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/07/25/macros-and-shared-examples/"/>
+    <updated>2015-07-25T08:50:29+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/07/25/macros-and-shared-examples</id>
+    <content type="html"><![CDATA[<p>The <strong>Macro</strong> and <strong>Shared Example</strong> are both used to extract codes that will repeated several times. use this two techniques will allow us to build pieces of codes that can be used through our entire rspec test, also make our testing code more clean and readable.</p>
+
+<!-- more -->
+
+
+<h2>Macro</h2>
+
+
+<p>First thing first, create a folder under <code>spec</code> called <code>support</code>, any file under this <code>support</code> folder will automatically loaded when we execute rspec. Next, create a file called &lsquo;macros.rb&rsquo; under the <code>support</code>, here is the place we will put our marco code to be used later on.</p>
+
+<p>It is pretty simple to use macro, let see an example, let&rsquo;s say we want to exract codes that can create a user named <code>sammy</code> and log her in by putting her id into the session, this is a really common function we use in our test.</p>
+
+<p>Inside the &lsquo;macros.rb&rsquo;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">log_in_user</span>
+</span><span class='line'>  <span class="n">sammy</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;sammy&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span> <span class="o">=</span> <span class="n">sammy</span><span class="o">.</span><span class="n">id</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Somewhere in our test code, if we want to log in a user before tests, we can do this</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">before</span>  <span class="p">{</span><span class="n">log_in_user</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="s1">&#39;user can do whatever he/she want&#39;</span>
+</span><span class='line'> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Done! as simple as creating a new method, and good new is that this macro can be used in your entire Rspec code.</p>
+
+<p>another macro example.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">current_user</span>
+</span><span class='line'>  <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This way, we can refer to current_user like this in the test code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">sammy</span> <span class="o">=</span> <span class="n">current_user</span>
+</span><span class='line'><span class="c1">#now we can use sammy to process our test if we need it</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Shared Example</h2>
+
+
+<p>Again, create a file called &lsquo;shared_examples.rb&rsquo; under <code>spec/support</code>.</p>
+
+<p>Cool thing <code>shared_example</code> can do is allow us to group and extract the test items and reuse it.</p>
+
+<p>For example, if we want the &lsquo;user not log in&rsquo; scenario to be tested in mutiple controller action, this is the case we can use shared_examples.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">shared_examples</span> <span class="s1">&#39;user_not_logged_in&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;redirect_to front_videos_path&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">clear_current_user</span> <span class="c1"># this method is defined in macro</span>
+</span><span class='line'>    <span class="n">action</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">redirect_to</span> <span class="n">front_videos_path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;shows the flash notice&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">clear_current_user</span> <span class="c1"># this method is defined in macro</span>
+</span><span class='line'>    <span class="n">action</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">flash</span><span class="o">[</span><span class="ss">:notice</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_present</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And inside the test, we can use it like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">describe</span> <span class="s1">&#39;POST update_position&#39;</span> <span class="k">do</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">#some other test</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it_behaves_like</span> <span class="s1">&#39;user_not_logged_in&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">let</span><span class="p">(</span><span class="ss">:action</span><span class="p">){</span><span class="n">post</span> <span class="s1">&#39;update_queue_item&#39;</span><span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>it_behaves_like</code> is the preserved word to call the shared_example, folloewd by the name of the example. and inside the block, we can put the setting, the action call and the verification.</p>
+
+<p>Be noticed that the <code>Macros</code> can also be used in the shared_examples. <code>clear_current_user</code> in this case.</p>
+
+<p>And also we can use <code>let</code> to define the variable if we do not want to hard code something. For instance, <code>action</code> will be different when we call this test in different controller/action. so it&rsquo;s a good situation to use <code>let</code> here.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rspec - Controller Test]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/06/24/rspec-controller-test/"/>
+    <updated>2015-06-24T14:47:36+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/06/24/rspec-controller-test</id>
+    <content type="html"><![CDATA[<p>To better implement controller, we can write specification(test) for each controller to define and test their behavior. The biggest benefit is we can have fully control of how controllers behave in all aspect without testing it manully, if we do not use Rspec to implement auto test, we have to use <code>rails console</code> or <code>browser</code> to test it by ourself. In other words, when we write Rspec, we have to make sure the spec is covering all the possibility, otherwise, we might be caught by some annoying bugs.</p>
+
+<!-- more -->
+
+
+<h2>Fabricator and Faker</h2>
+
+
+<p>To better way we test our code with rspec is to use both <code>fabricator</code> and <code>faker</code> along with our testing. this two gems work together can give us a powerful tool to make fake data for testing.</p>
+
+<p>To install it, just add <code>gem fabricator</code> and <code>gem faker</code> in our Gemfile and run bundle install, and it will be all set.</p>
+
+<h2>Use Fabricator</h2>
+
+
+<p>To use fabricator, we need a folder to put all the fabricators, which build for each models. Add a folder under <code>app/spec</code> called <code>fabricators</code>.
+Inside the folder, let&rsquo;s say we want to automatically generate fake data for <code>User</code> Model, so every time we need to have some data for testing purpose, we don&rsquo;t need to made up data ourself anymore. create a file called <code>User_fabricator.rb</code>. inside the file, put some code like this.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">Fabricator</span><span class="p">(</span><span class="ss">:video</span><span class="p">)</span> <span class="k">do</span> <span class="c1">#video is the model name</span>
+</span><span class='line'>    <span class="n">title</span> <span class="p">{</span><span class="no">Faker</span><span class="o">::</span><span class="no">Lorem</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)}</span> <span class="c1">#title is the parameter</span>
+</span><span class='line'>    <span class="n">description</span> <span class="p">{</span><span class="no">Faker</span><span class="o">::</span><span class="no">Lorem</span><span class="o">.</span><span class="n">sentence</span><span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+This is the typical fabricator with faker gem. To see more stuff what faker can create, visit <a href='https://github.com/stympy/faker'>Faker</a></p>
+
+<p><!-- Once we give the rule what to attach to the object when calling fabricator, --> we then can use it like this in our test file.</p>
+
+<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">Fabricator</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+This single line will give as a brand new object of <code>User</code> Model filled with fake data.</p>
+
+<p><h2>context, let and before</h2></p>
+
+<p><h4>context</h4></p>
+
+<p><code>context</code> is used when we have some common statement for each test item, then we can group it use <code>context</code>. for example.</p>
+
+<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">context</span> <span class="s1">&#39;with authenticated user&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;sets the @video&#39;</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;redirect_to video_path&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">context</span> <span class="s1">&#39;user is not authenticated&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;not sets the @video&#39;</span>
+</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;redirect_to signin_path&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p><h4>let</h4></p>
+
+<p><code>let</code> is used to create a variable that can be used in a</p>
+
+<p><h2>Controller testing</h2></p>
+
+<p>To test controller, basiclly there are two functions we need to test. First is setting instance variable that is ready for view, second is to render template or redirect to other action.</p>
+
+<p>Before that, let&rsquo;s create file and write out the basic structure.</p>
+
+<p>create a folder called <code>controllers</code> under <code>app/spec</code>, inside the folder, create a file called <code>users_controller_spec.rb</code>. write the fundamental like this:</p>
+
+<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">UsersControllers</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span>
+</span><span class='line'>    <span class="c1">#put test item here</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+The first line is neccessary! line 3 shows which controller we are goning to test, and line 4 is identify which action we are going to test inside this code block. first we need to give the correct HTTP verb to match the route.rb, in this case, it&rsquo;s the <code>GET</code> and following is the name of the action.</p>
+
+<p>Next, puts some test item here.
+<h3>Test the instance object</h3></p>
+
+<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;sets @user&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="c1"># 1. setup the data</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Fabricator</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;Tom&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># 2. execute the action</span>
+</span><span class='line'>    <span class="n">get</span> <span class="ss">:show</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span>
+</span><span class='line'>    <span class="c1"># 3. compare the expect with actual result  </span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">assigns</span><span class="p">(</span><span class="ss">:user</span><span class="p">))</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;render show template&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+Line 5, the Fabricator will create a new object for us, but if we want the paricular parameter, we can overwrite it just like overwrite the name to Tom in this case.</p>
+
+<p>Line 7 will send a fake request to action <code>show</code> with the params[:id] set to user.id.</p>
+
+<p>Line 9, the <code>:user</code> equals <code>@user</code>, which is inside the <code>show</code> action, so we can verify if the returned object <code>:user</code>is the same as the user variable here as we expect.</p>
+
+<p><h3>Test render or redirect_to </h3>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;redirect to the sign in page&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">get</span> <span class="ss">:show</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span>
+</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">redirect_to</span> <span class="n">front_videos_path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+Here we alse need to set the instance variable and call the action. the only difference is we call <code>responce</code> reserverd word to specify that we want to verify the routing after the action.</p>
+
+<p>Generally, if the routing is given by rails by convention, then we will skip this test. For example, if the action looks like <code>def show; end</code>, then we won&rsquo;t need to test routing for this action.</p>
+
+<p><h3>Execute test in Terminal</h3>
+running below comand will only execute the test for controllers.</p>
+
+<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span>
+</span></code></pre></td></tr></table></div></figure>
+running the below comand will only execute the test written in this particular file.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span><span class="o">/</span><span class="n">users_controller_spec</span><span class="o">.</span><span class="n">rb</span>
+</span></code></pre></td></tr></table></div></figure>
+running the below comand will only execute the test written in the line you specify.
+for example, the test we want to run is this one:
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">it</span> <span class="s1">&#39;set up the @user&#39;</span>
+</span><span class='line'>  <span class="c1">#testing code</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+then we can execute the test like this.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span><span class="o">/</span><span class="n">users_controller_spec</span><span class="o">.</span><span class="n">rb</span><span class="p">:</span><span class="mi">1</span>
+</span></code></pre></td></tr></table></div></figure></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rspec - Build Rspec and First Model Test]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test/"/>
+    <updated>2015-05-26T14:12:08+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test</id>
+    <content type="html"><![CDATA[<p>Rspec is a widespread BDD(Behaviour-Driven Development) tool for ruby. coding with Rspec, we can develop our application in TDD way. write testing code(also can be a spec document) and then write code to fulfill the requirement of testing code. once all the test passed, the code base is also finished. Here we will talk about how to set up Rspec environment and also write the Unit test for our model.</p>
+
+<!-- more -->
+
+
+<h2>Build up the Rspec test environment</h2>
+
+
+<p>in <code>Gemfile</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">group</span> <span class="ss">:test</span><span class="p">,</span> <span class="ss">:development</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;rspec-rails&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then run <code>bundle install</code> to install the <code>rspec</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rails</span> <span class="n">g</span> <span class="ss">rspec</span><span class="p">:</span><span class="n">install</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will generate two documents and one folder: <code>spec</code> folder, <code>.rspec</code> and <code>spec/spec_helper.rb</code>.
+Also another thing is to prepare our test database, because the test database is seperate from the development databse and will not interfere each other, but will share the same schema. To run below command generate the test database.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="nb">test</span><span class="ss">:prepare</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the <code>spec/spec_helper.rb</code> is the config file used to configure Rspec itself. Meanwhile, <code>spec</code> is where we will put our testing file. Now generate a folder <code>models</code> under <code>spec</code>. Here is to place all the <strong>Unit test</strong> for each models. Under the <code>models</code>, we can create a file called <code>PROJECTNAME_spec.rb</code>. Which the <code>PROJECTNAME</code> will same as your project name. In this case, we name it <code>myflix_spec.rb</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span> <span class="c1">#this line is required in all test file. the rspec will load rails enviroment alos with this class.</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">describe</span> <span class="no">Video</span> <span class="k">do</span> <span class="c1">#&#39;describe&#39; is the syntax for test, and the Video is the model name matchs the model we are going to test.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;save itself&#39;</span> <span class="k">do</span> <span class="c1"># &#39;it&#39; is the saved word</span>
+</span><span class='line'>    <span class="c1">#1.  set up the stage(data)</span>
+</span><span class='line'>    <span class="n">video</span> <span class="o">=</span> <span class="no">Video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="ss">title</span><span class="p">:</span> <span class="s1">&#39;Mission Impossible 3&#39;</span><span class="p">,</span> <span class="ss">description</span><span class="p">:</span> <span class="s1">&#39;Very cool movie&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#2.  perform a action</span>
+</span><span class='line'>    <span class="n">video</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">#3.  verify the result</span>
+</span><span class='line'>    <span class="no">Video</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="s1">&#39;Mission Impossible 3&#39;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next thing is to run <code>rspec</code> in terminal to see the result.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="err">➜</span>  <span class="n">myflix</span> <span class="ss">git</span><span class="p">:(</span><span class="n">master</span><span class="p">)</span> <span class="err">✗</span> <span class="n">rspec</span>
+</span><span class='line'><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Finished</span> <span class="k">in</span> <span class="mi">0</span><span class="o">.</span><span class="mo">03</span><span class="mi">922</span> <span class="n">seconds</span>
+</span><span class='line'><span class="mi">1</span> <span class="n">example</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failures</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Randomized</span> <span class="n">with</span> <span class="n">seed</span> <span class="mi">18414</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rake - Database Tasks]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/24/rake-mission/"/>
+    <updated>2015-05-24T23:15:24+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/24/rake-mission</id>
+    <content type="html"><![CDATA[<p>Type below task in terminal to list all tasks about database.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake -T | grep</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is all the list of the rake task avaliable for database manipulation.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ake db:create                          # Creates the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:create:all to create all databases in the config)
+</span><span class='line'>rake db:drop                            # Drops the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:drop:all to drop all databases in the config)
+</span><span class='line'>rake db:fixtures:load                   # Load fixtures into the current environment's database
+</span><span class='line'>rake db:migrate                         # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
+</span><span class='line'>rake db:migrate:status                  # Display status of migrations
+</span><span class='line'>rake db:rollback                        # Rolls the schema back to the previous version (specify steps w/ STEP=n)
+</span><span class='line'>rake db:schema:cache:clear              # Clear a db/schema_cache.dump file
+</span><span class='line'>rake db:schema:cache:dump               # Create a db/schema_cache.dump file
+</span><span class='line'>rake db:schema:dump                     # Create a db/schema.rb file that is portable against any DB supported by AR
+</span><span class='line'>rake db:schema:load                     # Load a schema.rb file into the database
+</span><span class='line'>rake db:seed                            # Load the seed data from db/seeds.rb
+</span><span class='line'>rake db:setup                           # Create the database, load the schema, and initialize with the seed data (use db:reset to also drop the database first)
+</span><span class='line'>rake db:structure:dump                  # Dump the database structure to db/structure.sql
+</span><span class='line'>rake db:version                         # Retrieves the current schema version number
+</span><span class='line'>rake test:all                           # Run tests quickly by merging all types and not resetting db
+</span><span class='line'>rake test:all:db                        # Run tests quickly, but also reset db</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setup_handy_development_env]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/24/setup-handy-development-env/"/>
+    <updated>2015-05-24T15:10:44+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/24/setup-handy-development-env</id>
+    <content type="html"><![CDATA[<p>This post will collect some very handy set up for the RoR develop environment.</p>
+
+<!-- more -->
+
+
+<h2>Better Terminal and bash</h2>
+
+
+<p>By following the tutorial in <a herf = 'https://medium.com/salesforce-ux/iterm2-with-zsh-shell-5944ee0502ac'>iTerm2 with Zsh Shell</a>. We will be using the iTerm2 and have two very lovely teature.</p>
+
+<ol>
+<li>Shows the git branch in the terminal</li>
+<li>Shorten the header of every line</li>
+</ol>
+
+
+<p>To show the work through and get rid of the tutorial. just 3 things to do here to set it up.</p>
+
+<ol>
+  <li>install <a href = 'https://www.iterm2.com/'>iTerm2</a></li>
+  <li>
+    in Terminal, make this command
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ chsh -s /bin/zsh</span></code></pre></td></tr></table></div></figure>
+  </li>
+  <li>
+    one more command
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh</span></code></pre></td></tr></table></div></figure>
+  </li>  
+</ol>
+
+
+<p>Now, reopen the iTerm2, and you are good to go.</p>
+]]></content>
+  </entry>
   
 </feed>

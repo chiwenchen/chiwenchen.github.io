@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Sublime | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/sublime/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Speed Up Coding With Sublime Text 2]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/11/13/speed-up-coding-with-sublime-text-2/"/>
+    <updated>2015-11-13T18:04:55+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/11/13/speed-up-coding-with-sublime-text-2</id>
+    <content type="html"><![CDATA[<p><strong>switch between groups: </strong>
+<code>
+control + GROUP_NUMBER
+</code></p>
+
+<p><strong>switch to sidebar</strong>
+<code>
+control + 0
+</code></p>
+
+<p><strong>switch between tabs:</strong>
+<code>
+option + TAB_NUMBER
+</code></p>
+
+<p><strong>search and open file</strong>
+<code>
+option + p
+</code></p>
+
+<h4>This is title</h4>
+
+
+<p>2rmwkfmeiowrfjeorfelr;fkp</p>
+
+
+<pre><code>this is code
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

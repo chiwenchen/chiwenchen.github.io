@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Test Styles of Rails - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="There are three different testing style or process we use in developing rails app. Outside in The first is called outside in, this style means when &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chiwenchen.github.io/blog/2016/02/23/test-styles-of-rails/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chiwenchen.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Test Styles of Rails</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-23T12:42:54+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2016</span></span> <span class='time'>12:42 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>There are three different testing style or process we use in developing rails app.</p>
+
+<h2>Outside in</h2>
+
+
+<p>The first is called outside in, this style means when we developing a new feature, we thinking in a integration level or business level first, by doing this, we can clarify the business value of this feature in the first place, than from here, this will drive us to implement a level deeper which is controller level to fulfill the need from the feature, and then one level deeper to model layer.</p>
+
+<p>The most common usecase of the approach is when we work with customer and the requiremnts is very clear, just write out the descriptions of the feature and implement it step by step will make the developing process more fluent.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Inside out</h2>
+
+
+<p>Second style is totally bottom up, we start from the most depth layer which is model, we write test description of each unit and then fulfill the test, once all the model we think is complete, then move to the controller layer and then to view template.</p>
+
+<p>The pros of this approach is we can start small, this will allow developer more focus on one thing and make it easier to complete, but the cons of this is some times when we move to next layer will find that some of our model method is useless and we lack some of the function in the other hand, this will become time comsumming and makes a lot of goes and back.</p>
+
+<h2>Meet in the middle</h2>
+
+
+<p>The third style takes a good balance between the previous two.</p>
+
+<p>In this approach, we firstly build out the view template, this give us a vision of how the web page will look like and imaging how people will interact with the site, and then we start from the controller to make the page alive, once we fiound the method is way too complicate for controller, we will then drop it to model layer, also make unit test for the function, once the unit is well tested, we then back to the controller layer to implement it. after the controller layer and model layer is finished and tested, we then start to write feature test to mimic the user experience.</p>
+
+<p>By doing this, we will have clear business vision in first place just like <strong>Outside in</strong> style, as well as having the pros of easy to start small just like <strong>Inside out</strong>, at the same time, won&rsquo;t waste too much time on guessing what method to work on.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-02-23T12:42:54+08:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2016</span></span> <span class='time'>12:42 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/test/'>test</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://chiwenchen.github.io/blog/2016/02/23/test-styles-of-rails/" data-via="" data-counturl="http://chiwenchen.github.io/blog/2016/02/23/test-styles-of-rails/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/02/17/elasticsearch-with-rails/" title="Previous Post: Elasticsearch with rails">&laquo; Elasticsearch with rails</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2016/02/24/decorator-for-model/" title="Next Post: Decorator">Decorator &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/17/neo4j-and-graph-database/">Neo4j and Graph Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/15/deploy-rails-to-ubuntu/">Deploy_rails_to_ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

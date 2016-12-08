@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Model | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/model/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Model Associations]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/28/rails-model-associations/"/>
+    <updated>2015-04-28T15:49:13+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/28/rails-model-associations</id>
+    <content type="html"><![CDATA[<p>Here I will record associations syntax for fast reference.</p>
+
+<h2>1 : M Association</h2>
+
+
+<p><strong>Use Case: A user can have many posts.</strong></p>
+
+<p><code>user</code> is <em>one</em> side:
+<code>rb
+class User &lt; ActiveRecord::Base
+    has_many :posts
+end
+</code>
+<code>post</code> is <em>many</em> side:
+<code>
+class Post &lt; ActiveRecord::Base
+    belongs_to :user
+end
+</code></p>
+
+<!-- more -->
+
+
+
+
+<h2>M : M Association</h2>
+
+
+<p>There are two different ways to implement M : M association, <code>has_and_belongs_to_many</code> and <code>has_many :through</code>.</p>
+
+<p>Here we will only use <code>has_many :through</code>, aka <code>hmt</code>, because this will give us more flexibility in future.</p>
+
+<p><strong>Use case: A category can have many posts, also a posts can have many categories</strong></p>
+
+<p><code>category</code> side:
+<code>
+class Category &lt; ActiveRecord::Base
+    has_many :post_categories
+    has_many :posts, through: :post_categories
+end
+</code>
+<code>post</code> side:
+<code>
+class Post &lt; ActiveRecord::Base
+    has_many :post_categories
+    has_many :posts, through: :post_categories
+end
+</code></p>
+
+<p>Here is the critical part of the M : M association, we have to create a bridge called <code>post_category.rb</code> file. Let&rsquo;s config this association.
+<code>
+class PostCategory &lt; ActiveRecord::Base
+    belongs_to :post
+    belongs_to :category
+end
+</code>
+Let&rsquo;s it!! the M : M association is now connected</p>
+
+<h2>Polymorphic Association</h2>
+
+
+<p><code>polymorphic</code> is used when a model can belongs to more than one other model.</p>
+
+<p><strong>Use case: You can vote on either post or comment</strong></p>
+
+<p><code>vote</code> side:
+<code>
+class Vote &lt; ActiveRecord::Base
+    belongs_to :voteable, polymorphic: true
+end
+</code></p>
+
+<p><code>post</code> side:
+<code>
+class Post &lt; ActiveRecord::Base
+    has_many :votes, as: :voteable
+end
+</code>
+By creating this type of connection, we will get two columns in <code>votes</code> table. <code>voteable_type</code> and <code>voteable_id</code></p>
+
+<p>and we can manipulate DB, for example:
+<code>
+$ post = Post.first
+$ post.votes &lt;&lt; Vote.create(voter: User.first)
+</code>
+or
+<code>
+$ vote = Vote.new(voter: User.first)
+$ vote.voteable = Post.first
+$ vote.save
+</code>
+either will create a data in DB to record that we have a vote for first post.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Model Validations]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/27/rails-model-validations/"/>
+    <updated>2015-04-27T16:03:43+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/27/rails-model-validations</id>
+    <content type="html"><![CDATA[<p><strong>Rails Validations</strong> is used when we need to verify data before it stored into real database.</p>
+
+<h2>Common Validations</h2>
+
+
+<p>Here will expose some very basic validation mechanisms.</p>
+
+<h4>Common Validations</h4>
+
+
+<p>This is to vefify if the user have key in value of the <code>:title</code> column, will fail if user leave it blank.
+<code>rb
+validates :title, presence: true
+</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Basic Model Design]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/27/rails-basic-model-design/"/>
+    <updated>2015-04-27T13:28:35+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/27/rails-basic-model-design</id>
+    <content type="html"><![CDATA[<p><code>Model</code> is the <code>M</code> of Rails MVC structure, which is responsible for the database management. In Rails we don&rsquo;t need to write SQL syntax to interact with DB layer, instead, by inherit from <code>ActiveRecord::Base</code> class, we get a lot of convention in our codebase to store and retrive datas from our database.</p>
+
+<!-- more -->
+
+
+<h2>Use Migration to create a Table</h2>
+
+
+<p>in project folder path:
+<code>rb
+rails generate migration create_users  
+</code>
+Here is the first convention do the magic!! by execute this commend, we weill get one file looks like <code>20140316231808_create_users.rb</code>. open it in text editor.</p>
+
+<pre><code>class CreateUsers &lt; ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+    end
+  end
+end
+</code></pre>
+
+<p>In here, we can add column we want to store particular data we need. like this:
+<code>
+class CreateUsers &lt; ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+        t.string :name
+        t.integer :phone_number
+        t.timestamp
+    end
+  end
+end
+</code>
+By doing this, we will create a table called <code>users</code> which include columns <code>id</code>,<code>name</code>, <code>phone_number</code> and two columns which will record the created_time and updated_time for every single data.</p>
+
+<p>Then, next thing is hop into <code>rails c</code> and do:
+<code>
+rake db:migrate
+</code>
+by doing this, all the migration we created so far will migrate into the <code>schema</code>.
+DB side is done! next one is the <code>model</code>.</p>
+
+<h2>Create Model</h2>
+
+
+<p>The Model of MVC, in Rails we called it <code>ActiveRecord</code>.this layer is responsible for the interact between DB layer and our controller. also we tentd to put business logic here.</p>
+
+<p>Firstly, we have to generate a file in <code>models</code>, in this case, because we want to map to the table <code>users</code> we just create before. so we have to name the file <code>user.rb</code>(singular of the table name). By convention, this connection will automatically linked.</p>
+
+<p>Inside the file, we add few line of code.
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class User &lt; ActiveRecord::Base&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;end</span></code></pre></td></tr></table></div></figure>
+That&rsquo;s is, now the Model is create.
+Then in this file, we will be able to add features in it. Association, Validations, Authentication, business logic and more!</p>
+
+<h2>Some hint</h2>
+
+
+<h4>Migration's naming convention</h4>
+
+
+<ul>
+<li>
+To create a brand-new table
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails generate migration create_TABLENAME </span></code></pre></td></tr></table></div></figure>
+</li>
+<li>
+To add columns to existing table
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rails generate migration add_COLUMNNAME_to_TABLENAME</span></code></pre></td></tr></table></div></figure>
+</li>
+remember, always start the migration file name with `create` or `add`. otherwise, might cause problem when deploy to heroku.
+</ul>
+
+
+<p></p>
+
+
+
+
+<h4>Change? Up and down?</h4>
+
+
+<p>In 99% use case, we lean on <code>change</code> method, only when the <code>up</code> and <code>down</code> be not totally opposite, then will use <code>up</code> and <code>down</code> method to define migration.</p>
+
+<h4>rails generation</h4>
+
+
+<p>migration is the only one file we will use <code>rails generate</code> to generate, because it will create timestamp for us like this: <code>20140316231808_create_users.rb</code>.</p>
+]]></content>
+  </entry>
+  
+</feed>

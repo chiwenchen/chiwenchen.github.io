@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: View | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/view/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Flavored Ajax]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/05/rails-flavor-ajax/"/>
+    <updated>2015-05-05T10:44:18+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/05/rails-flavor-ajax</id>
+    <content type="html"><![CDATA[<h2>jQuery flavored Ajax</h2>
+
+
+<p>If we use jQuery flavored ajax, this will be the code we have to write.
+<code>js
+$(document).ready(function() {
+    $(document).on('click', 'form#hit_form button', function() { //event listener
+        $.ajax({ // ajax request
+            type: 'POST',
+            url: '/game/player/hit'
+        }).done(function(msg) { // response
+            $('#game').replaceWith(function(msg);
+        });
+        return false;
+    });
+});
+</code>
+But for Rails, things got easier!</p>
+
+<!-- more -->
+
+
+<h2>Rails flavored Ajax</h2>
+
+
+<p>In Rails world, We can use rails&rsquo;s convention to implement ajax more easily.</p>
+
+<h3>View</h3>
+
+
+<p>First, we need to add <code>remote: true</code> in the link or button we want to ajax it. For instance.</p>
+
+<pre><code class="erb">  &lt;%= link_to vote_post_path(post, vote: false), method: 'post',remote: true do %&gt;
+</code></pre>
+
+<p>Just like the <code>method: 'post'</code>, the jQuery file will look for the <code>data-remote: true</code> which is converted from <code>remote: true</code> by html, and then attach itself into the element and convert the link into a ajax call.</p>
+
+<p>Once the link is clicked, we will moving to the related controller, so next, build the action to handle the ajax request.</p>
+
+<h3>Controller</h3>
+
+
+<p>After we done the DB job with the params passed in, next we have to deal with the response, typically, we will render template or redirect url, but with Ajax in the view, we have to tell what to do with the pure html and what to do with the ajax element. So we split the respond like this.</p>
+
+<pre><code class="rb">  def vote 
+    #@post = Post.find(params[:id])
+    #Vote.create(voteable: @post, voter: current_user, vote: params[:vote])
+    respond_to do |format|
+      format.html {redirect_to :back} #html respond
+      format.js #ajax respond
+    end
+  end
+</code></pre>
+
+<p>By convention, if no argument with the <code>format.js</code>, controller will look for a file same name as the action <code>vote</code>, but subtitle will be <code>.js.erb</code>, so we need to create a file called <code>vote.js.erb</code> under <code>/views/posts</code> to handle the response.</p>
+
+<p>before that, we have to add <code>id</code> for elements we want to change, in this example, we want to change the voting number when we click the voting button, so we can give the voting number a <code>id</code> like so:
+<code>js
+&lt;span id = 'vote_on_&lt;%= post.id %&gt;_post'&gt;
+  &lt;%= post.count_vote %&gt; liked
+&lt;/span&gt;
+</code>
+<em>hint: the argument of the <code>id</code> is html code, so we can use <code>&lt;%= %&gt;</code> to write dynamic code inside.</em></p>
+
+<p>OK, now we can go back <code>vote.js.erb</code> to finish the ajax response.</p>
+
+<pre><code class="js">$('#vote_on_&lt;%= @post.id %&gt;_post').html('&lt;%= @post.count_vote %&gt; liked')
+</code></pre>
+
+<h2>Conclusion</h2>
+
+
+<p>This means every time we trigger the ajax request by clicking the button we specify by giving it a <code>remote: true</code>, it will go through the controller and knowing where to find the ajax response should return back. Firstly, he will look for all the ids in the <code>.js.erb</code> file and replace the code all wrapped by the id with the code inside <code>.html()</code></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Partial]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/27/rails-partial/"/>
+    <updated>2015-04-27T17:40:37+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/27/rails-partial</id>
+    <content type="html"><![CDATA[<p><code>Partial</code> is used when we want to DRY our template code, and put the repitition code in one place. so we can use it later whenever we need it.</p>
+
+<!-- more -->
+
+
+
+
+<h2>Simple Partial</h2>
+
+
+<p>Let&rsquo;s say we want to extract a form used for both create user and update user. firstly we create a folder called <code>shared</code> under <code>views</code>. and then create a file called <code>_form_html_erb</code> under <code>shared</code>. so the file path will look like this.</p>
+
+<p><code>/views/shared/_form_html_erb</code></p>
+
+<p>Here, the folder name can be anything, even if this partial will be only used by a group of template which under the same folder, we don&rsquo;t even need to create another new folder, just put inside the original one.
+But the name of the partial is having some convention. First, <strong>must</strong> start with <code>_</code>, second, the name of the file is what we will use later to point to what we want to render.</p>
+
+<p>Let&rsquo;s put some code inside the <code>_form.html.erb</code>
+```ruby
+&lt;%= form_for @post do |f|%></p>
+
+<p>  &lt;%= f.label :title %>
+  &lt;%= f.text_field :title %></p>
+
+<p>  &lt;%= f.label :url %>
+  &lt;%= f.text_field :url %></p>
+
+<p>  &lt;%= f.submit button %></p>
+
+<p>&lt;% end %> <br/>
+<code>
+OK, in the `new_html_erb` template, now we can render this partial.
+</code>
+render &lsquo;/shared/form&rsquo;, button: &lsquo;Create Post&rsquo;
+<code>``
+As you can see, now we don't need to put</code>_<code>before form. the</code>button` is the variable that we need to give it a attribute everytime we render this form, otherwise, an error will occur.</p>
+
+<h2>Collection Partial</h2>
+
+
+<p>Collection Partial is used when the code been renderd is a iterate loop. then we can extract the main body, and let the collection partial convention do the iterate for us.
+For instance, we have to iterate all the posts belongs to particular user, we will write code something like this:
+<code>
+&lt;%= @user.posts.each do |post| %&gt;
+    &lt;%= post.title %&gt;
+    &lt;%= post.body %&gt;
+&lt;% end %&gt;
+</code>
+If we want to extract it to a partial file, we then create a folder called <code>posts</code> under <code>views</code>, and under the <code>posts</code>, we create a file <code>_post.html.erb</code>.
+open <code>_post.html.erb</code> in text editor.
+<code>
+    &lt;%= post.title %&gt;
+    &lt;%= post.body %&gt;
+</code>
+In the template where you want to render this partial, let&rsquo;s say in the <code>index.html.erb</code>.
+<code>
+&lt;%= render @user.posts %&gt;
+</code>
+Let&rsquo;s it. Done!</p>
+
+<p>OK, let&rsquo;s look closer how the convention works!</p>
+
+<p>Firstly, the variable been iterate here is the <code>|post|</code>, so the folder name must be the plural of the <code>post</code> which is <code>posts</code>, and the file&rsquo;s name must be the singular which is <code>post.html.erb</code>.</p>
+
+<p>Secondly, the content inside the <code>_post.html.erb</code> is the body code of the loop block. No need to put the whole iteration here.</p>
+
+<p>Finally, once you want to render this partial, just put in the variable, in this case <code>@user.posts</code>, then ruby will know where to find the partial, and give the full template back for you.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Route | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/route/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Add Slug to Rails Webapp]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/13/add-slug-to-webapp/"/>
+    <updated>2015-05-13T10:19:48+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/13/add-slug-to-webapp</id>
+    <content type="html"><![CDATA[<p>By Rails default, if we retrive the object in DB and show related inforamtion to the browser like the <code>show action</code>, the url will show the <em>id</em> of the object as well. This is no good in production webapp in some reasons, one is the original information will exposed to the user, higher the risk web been hacked. for instance, user might able to keyin the id one by one to see all the posts in our website. another disadvantage is that the SEO will lower due to the irrelevant url.</p>
+
+<p>Lucky, we can solve the two issues by introduce slug into our website. <strong>Slug</strong> is a string that will allow us to show some information in the url replacing <em>id</em>. to firstly hide some sensitive information and also provide relatively useful information to user.</p>
+
+<p>before introducing slug, the url looks like:
+<code>
+http://my_web/post/1
+</code>
+after introducing slug:
+<code>
+http://my_web/post/good-post-about-food
+</code>
+Let&rsquo;s see how to implement slug.</p>
+
+<!-- more -->
+
+
+<h3>Model</h3>
+
+
+<p>Firstly we need to create a column to store the slug for each objects, in the example here, we will create slug for Post model. in commend line:
+<code>
+rails generate migration add_slug_to_post
+</code>
+in the migration file:
+<code>rb
+class AddSlugToPost &lt; ActiveRecord::Migration
+  def change
+    add_column :posts, :slug, :string
+  end
+end
+</code>
+we would like to simple generate slug by converte the title into some proper string. so def a <code>generate slug</code> method in the post model.
+<code>
+def generate_slug
+  self.slug = self.title.gsub(' ', '_').downcase
+end
+</code>
+this will translate title <code>Good post about food</code> to slug <code>good-post-about-food</code>.
+but we still need a mechanism to store the slug automatically when the post is create or even updated. So we need <a href = 'http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html'><code>Callbacks</code></a> method here.</p>
+
+<pre><code>before_save :generate_slug
+</code></pre>
+
+<p>By adding the link above, the <code>generate slug</code> method will be execute everytime before the object been saved. this means that the slug we generated will saved into DB as well.</p>
+
+<p>One more method to add in model. we will use this method later in the <code>view</code> template when calling url named helper.</p>
+
+<pre><code>def to_param
+    self.slug
+end
+</code></pre>
+
+<h3>View</h3>
+
+
+<p>When we want to create a link or button, this is the code we might write in our view template.</p>
+
+<pre><code>&lt;%= link_to post.title, post_path(post), method: 'get' %&gt; 
+</code></pre>
+
+<p>Here the <code>post</code> is the object of the <code>Post</code> class, and when we call named helper like <code>post_path(post)</code>, it is actually calling the <code>to_param</code> method for the <code>post</code> object to turn the object into <code>id</code>. and this <code>id</code> will show in the url as well as pass to the relative controller action to retrive the right information to give back the correct response to browser.</p>
+
+<p>But the thing here is we want to show <code>slug</code> in our url instead of <code>id</code>. so that&rsquo;s why we overwrite the <code>to_param</code> method in the <code>Post</code> Model layer. to be more expressive, we can rewrite the named helper like so.
+<code>
+post_path(post.to_param)
+</code></p>
+
+<h3>Controller</h3>
+
+
+<p>In controller, here is the original code to retrive information from DB.
+<code>
+@post = Post.find(params[:id])
+</code>
+But remember, for now our key is no longer <code>id</code>, instead, we use <code>slug</code>!!
+<code>
+@post = Post.find_by(slug: params[:id])
+</code>
+For now, the basic slug is successfully added to our webapp.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Basic Routes]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/04/28/rails-basic-routes/"/>
+    <updated>2015-04-28T16:55:35+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/04/28/rails-basic-routes</id>
+    <content type="html"><![CDATA[<p>In this post, we will expose some every common routing methods.</p>
+
+<h3>Root Route</h3>
+
+
+<p><code>root</code> route is the first page people will see when they enter our website. <code>root</code> route will
+<code>rb
+root to: 'CONTROLLER#ACTION' #or
+root 'CONTROLLER#ACTION'
+</code>
+for example:
+<code>
+root to: 'posts#index'
+</code></p>
+
+<h3>Resource</h3>
+
+
+
+
+<h3>.:format</h3>
+
+
+<pre><code>Rails.application.routes.draw do
+  resources :users
+
+  get 'profile', controller: :users, to: :show
+end
+</code></pre>
+
+<p>will generate below routes
+<code>
+   Prefix Verb   URI Pattern               Controller#Action
+    users GET    /users(.:format)          users#index
+          POST   /users(.:format)          users#create
+ new_user GET    /users/new(.:format)      users#new
+edit_user GET    /users/:id/edit(.:format) users#edit
+     user GET    /users/:id(.:format)      users#show
+          PATCH  /users/:id(.:format)      users#update
+          PUT    /users/:id(.:format)      users#update
+          DELETE /users/:id(.:format)      users#destroy
+  profile GET    /profile(.:format)        users#show
+</code>
+We have <code>.:format</code> option everywhere, RESTful routes or custom routes - everywhere. However member RESTful routes (show, edit, update, destroy) require the <code>:id</code> but custom profile does not require it. Instead optional <code>.:format</code> is following. That means if you do <code>profile_path("whatever")</code> it will produce URL like
+<code>
+http://localhost:3000/profile.whatever.
+</code>
+Be noticed that the url is <code>/profile.whatever</code> and not <code>/profile/whatever</code>
+And also the params will contain
+<code>
+format: 'whatever'
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>

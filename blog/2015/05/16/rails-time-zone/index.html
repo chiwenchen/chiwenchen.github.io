@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rails Time Zone - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="In this post, we will introduce how to implement TimeZone and also how to allow user to customize their local timezone. Display time zone In &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="chiwenchen.github.io">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Rails Time Zone</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-16T15:08:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:08 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In this post, we will introduce how to implement <code>TimeZone</code> and also how to allow user to customize their local timezone.</p>
+
+<!-- more -->
+
+
+<h2>Display time zone</h2>
+
+
+<p>In <code>time_format</code> method in side <code>application_helper.rb</code> file, add %Z to display the time zone.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">time_format</span><span class="p">(</span><span class="n">original_time</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">original_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%b/%d/%Y %I:%M%p %Z&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Set default time zone</h2>
+
+
+<p>In <code>application.rb</code> file under <code>config</code>. uncomment the below code.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">time_zone</span> <span class="o">=</span> <span class="s1">&#39;Central Time (US &amp; Canada)&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can see now the default time zone is in <code>UTC</code>.</p>
+
+<p>To find out all the time zone availiable in rails app. fisrtly we can type <code>rake -T | grep time</code> to find any rake task realted to <code>time</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rake</span> <span class="ss">time</span><span class="p">:</span><span class="ss">zones</span><span class="p">:</span><span class="n">all</span>         <span class="c1"># Displays all time zones, also available: time:zones:us, time:zones:local -- filter with OFFSET parameter, e.g., OFFSET=-6</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we can use <code>rake time:zones:all</code> to see all the time zone.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">*</span> <span class="no">UTC</span> <span class="o">-</span><span class="mi">11</span><span class="p">:</span><span class="mo">00</span> <span class="o">*</span>
+</span><span class='line'><span class="no">American</span> <span class="no">Samoa</span>
+</span><span class='line'><span class="no">International</span> <span class="no">Date</span> <span class="no">Line</span> <span class="no">West</span>
+</span><span class='line'><span class="no">Midway</span> <span class="no">Island</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">*</span> <span class="no">UTC</span> <span class="o">-</span><span class="mi">10</span><span class="p">:</span><span class="mo">00</span> <span class="o">*</span>
+</span><span class='line'><span class="no">Hawaii</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">*</span> <span class="no">UTC</span> <span class="o">-</span><span class="mi">09</span><span class="p">:</span><span class="mo">00</span> <span class="o">*</span>
+</span><span class='line'><span class="no">Alaska</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">*</span> <span class="no">UTC</span> <span class="o">-</span><span class="mi">08</span><span class="p">:</span><span class="mo">00</span> <span class="o">*</span>
+</span><span class='line'><span class="no">Pacific</span> <span class="no">Time</span> <span class="p">(</span><span class="no">US</span> <span class="o">&amp;</span> <span class="no">Canada</span><span class="p">)</span>
+</span><span class='line'><span class="no">Tijuana</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">*</span> <span class="no">UTC</span> <span class="o">-</span><span class="mo">07</span><span class="p">:</span><span class="mo">00</span> <span class="o">*</span>
+</span><span class='line'><span class="no">Arizona</span>
+</span><span class='line'><span class="no">Chihuahua</span>
+</span><span class='line'><span class="no">Mazatlan</span>
+</span><span class='line'><span class="no">Mountain</span> <span class="no">Time</span> <span class="p">(</span><span class="no">US</span> <span class="o">&amp;</span> <span class="no">Canada</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And you can use <code>grep</code> to find your own country&rsquo;s string.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rake</span> <span class="ss">time</span><span class="p">:</span><span class="ss">zones</span><span class="p">:</span><span class="n">all</span> <span class="o">|</span> <span class="n">grep</span> <span class="no">Taipei</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In my case, I search for <code>Taipei</code> and find it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="err">$</span> <span class="no">Taipei</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So now I can use it as my default time zone, back to the application.rb file and modify it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">time_zone</span> <span class="o">=</span> <span class="s1">&#39;Taipei&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+Now the time zone in my app is change to <code>CST</code> which is the shortcut for China Standard Time UTC+8.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">May</span><span class="o">/</span><span class="mi">13</span><span class="o">/</span><span class="mi">2015</span> <span class="mi">09</span><span class="p">:</span><span class="mo">07</span><span class="no">PM</span> <span class="no">CST</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Allow User customize time zone</h2>
+
+
+<h3>Add an time_zone column</h3>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rails</span> <span class="n">generate</span> <span class="n">migration</span> <span class="n">add_timezone_to_user</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>define column in the below migration file and execute <code>rake db:migration</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">AddTimezoneToUser</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>      <span class="n">add_column</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">:time_zone</span><span class="p">,</span> <span class="ss">:string</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the <code>users</code>&rsquo;s <code>new</code> form, add new column for user to select time_zone.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">&lt;</span><span class="n">div</span> <span class="k">class</span> <span class="o">=</span> <span class="s1">&#39;control_group&#39;</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">%= f.label :time_zone %&gt;</span>
+</span><span class='line'><span class="sx"> &lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">time_zone_select</span> <span class="ss">:time_zone</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">TimeZone</span><span class="o">.</span><span class="n">us_zones</span> <span class="sx">%&gt; </span>
+</span><span class='line'><span class="sx">&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ActiveSupport::TimeZone</code> class have support lots of way to customize our time_zone selecting form.</p>
+
+<p>Put a <code>binding.pry</code> in the <code>create</code> action to peep the value come with the time_zone form. and here is the params returns back.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">=&gt;</span> <span class="p">{</span><span class="s2">&quot;utf8&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;✓&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;authenticity_token&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;5ldSHKcI9hvw1vJK7fZQ9hqETmHSB8kp2gflEylDSME=&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;user&quot;</span><span class="o">=&gt;</span>
+</span><span class='line'>  <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;test1&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;password&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;test1&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;phone_number&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;email&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;time_zone&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;Taipei&quot;</span><span class="p">},</span> <span class="c1">#time zone is here!!</span>
+</span><span class='line'> <span class="s2">&quot;commit&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;Register Now&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;action&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;controller&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;users&quot;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we check our strong_params in command line.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">Unpermitted</span> <span class="ss">parameters</span><span class="p">:</span> <span class="n">time_zone</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;test1&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;password&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;test1&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;phone_number&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;email&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;123&quot;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now the time_zone is not permitted yet. so add <code>time_zone</code> to the permit list.</p>
+
+<p>And now we can display the time zone that given by the user. make some change on the <code>application_helper.rb</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">time_format</span><span class="p">(</span><span class="n">date_time</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">logged_in?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">current_user</span><span class="o">.</span><span class="n">time_zone</span><span class="o">.</span><span class="n">blank?</span>
+</span><span class='line'>      <span class="n">date_time</span> <span class="o">=</span> <span class="n">date_time</span><span class="o">.</span><span class="n">in_time_zone</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">time_zone</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">date_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%b/%d/%Y %I:%M%p %Z&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will then display the right time as per user&rsquo;s want.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-05-16T15:08:12+08:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:08 pm</span></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/rails/'>rails</a>, <a class='category' href='/blog/categories/time/'>time</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone/" data-via="" data-counturl="http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/15/rails-module/" title="Previous Post: Rails Module">&laquo; Rails Module</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/05/24/setup-handy-development-env/" title="Next Post: setup_handy_development_env">setup_handy_development_env &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/17/neo4j-and-graph-database/">Neo4j and Graph Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/03/15/deploy-rails-to-ubuntu/">Deploy_rails_to_ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

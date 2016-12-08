@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Time | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/time/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Time Zone]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone/"/>
+    <updated>2015-05-16T15:08:12+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/16/rails-time-zone</id>
+    <content type="html"><![CDATA[<p>In this post, we will introduce how to implement <code>TimeZone</code> and also how to allow user to customize their local timezone.</p>
+
+<!-- more -->
+
+
+<h2>Display time zone</h2>
+
+
+<p>In <code>time_format</code> method in side <code>application_helper.rb</code> file, add %Z to display the time zone.</p>
+
+<pre><code class="rb">def time_format(original_time)
+  original_time.strftime("%b/%d/%Y %I:%M%p %Z")
+end
+</code></pre>
+
+<h2>Set default time zone</h2>
+
+
+<p>In <code>application.rb</code> file under <code>config</code>. uncomment the below code.</p>
+
+<pre><code class="rb">config.time_zone = 'Central Time (US &amp; Canada)'
+</code></pre>
+
+<p>You can see now the default time zone is in <code>UTC</code>.</p>
+
+<p>To find out all the time zone availiable in rails app. fisrtly we can type <code>rake -T | grep time</code> to find any rake task realted to <code>time</code>.</p>
+
+<pre><code class="">rake time:zones:all         # Displays all time zones, also available: time:zones:us, time:zones:local -- filter with OFFSET parameter, e.g., OFFSET=-6
+</code></pre>
+
+<p>Now we can use <code>rake time:zones:all</code> to see all the time zone.
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>* UTC -11:00 *
+</span><span class='line'>American Samoa
+</span><span class='line'>International Date Line West
+</span><span class='line'>Midway Island&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;ul&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -10:00 *
+</span><span class='line'>Hawaii&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -09:00 *
+</span><span class='line'>Alaska&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -08:00 *
+</span><span class='line'>Pacific Time (US &amp; Canada)
+</span><span class='line'>Tijuana&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;&lt;p&gt;UTC -07:00 *
+</span><span class='line'>Arizona
+</span><span class='line'>Chihuahua
+</span><span class='line'>Mazatlan
+</span><span class='line'>Mountain Time (US &amp; Canada)&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;/ul&gt;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;&hellip;
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>And you can use `grep` to find your own country's string.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>rake time:zones:all | grep Taipei
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>In my case, I search for `Taipei` and find it.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>$ Taipei
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>So now I can use it as my default time zone, back to the application.rb file and modify it.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>config.time_zone = &lsquo;Taipei&rsquo;
+</span><span class='line'>&lt;code&gt;
+</span><span class='line'>Now the time zone in my app is change to `CST` which is the shortcut for China Standard Time UTC+8.
+</span><span class='line'>&lt;/code&gt;
+</span><span class='line'>May/13/2015 09:07PM CST</span></code></pre></td></tr></table></div></figure></p>
+
+<h2>Allow User customize time zone</h2>
+
+
+<h3>Add an time_zone column</h3>
+
+
+<pre><code>rails generate migration add_timezone_to_user
+</code></pre>
+
+<p>define column in the below migration file and execute <code>rake db:migration</code>
+<code>
+class AddTimezoneToUser &lt; ActiveRecord::Migration
+  def change
+    add_column :users, :time_zone, :string
+  end
+end
+</code>
+In the <code>users</code>&rsquo;s <code>new</code> form, add new column for user to select time_zone.</p>
+
+<p>```</p>
+
+<div class = 'control_group'> 
+    <%= f.label :time_zone %>
+    <%= f.time_zone_select :time_zone ActiveSupport::TimeZone.us_zones %> 
+</div>
+
+
+<pre><code>The `ActiveSupport::TimeZone` class have support lots of way to customize our time_zone selecting form.
+
+Put a `binding.pry` in the `create` action to peep the value come with the time_zone form. and here is the params returns back.
+</code></pre>
+
+<p>=> {&ldquo;utf8&rdquo;=>&ldquo;✓&rdquo;,
+ &ldquo;authenticity_token&rdquo;=>&ldquo;5ldSHKcI9hvw1vJK7fZQ9hqETmHSB8kp2gflEylDSME=&rdquo;,
+ &ldquo;user&rdquo;=>
+  {&ldquo;username&rdquo;=>&ldquo;test1&rdquo;,
+   &ldquo;password&rdquo;=>&ldquo;test1&rdquo;,
+   &ldquo;phone_number&rdquo;=>&ldquo;123&rdquo;,
+   &ldquo;email&rdquo;=>&ldquo;123&rdquo;,
+   &ldquo;time_zone&rdquo;=>&ldquo;Taipei&rdquo;}, #time zone is here!!
+ &ldquo;commit&rdquo;=>&ldquo;Register Now&rdquo;,
+ &ldquo;action&rdquo;=>&ldquo;create&rdquo;,
+ &ldquo;controller&rdquo;=>&ldquo;users&rdquo;}
+<code>
+If we check our strong_params in command line.
+</code>
+Unpermitted parameters: time_zone
+=> {&ldquo;username&rdquo;=>&ldquo;test1&rdquo;,
+ &ldquo;password&rdquo;=>&ldquo;test1&rdquo;,
+ &ldquo;phone_number&rdquo;=>&ldquo;123&rdquo;,
+ &ldquo;email&rdquo;=>&ldquo;123&rdquo;}
+<code>``
+Now the time_zone is not permitted yet. so add</code>time_zone` to the permit list.</p>
+
+<p>And now we can display the time zone that given by the user. make some change on the <code>application_helper.rb</code>.</p>
+
+<pre><code>def time_format(date_time)
+    if logged_in? &amp;&amp; !current_user.time_zone.blank?
+        date_time = date_time.in_time_zone(current_user.time_zone)
+    end
+  date_time.strftime("%b/%d/%Y %I:%M%p %Z")
+end
+</code></pre>
+
+<p>This will then display the right time as per user&rsquo;s want.</p>
+]]></content>
+  </entry>
+  
+</feed>

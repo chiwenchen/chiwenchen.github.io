@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Controller | My Octopress Blog]]></title>
+  <link href="http://chiwenchen.github.io/blog/categories/controller/atom.xml" rel="self"/>
+  <link href="http://chiwenchen.github.io/"/>
+  <updated>2016-12-08T14:46:56+08:00</updated>
+  <id>http://chiwenchen.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Rails Basic Controller]]></title>
+    <link href="http://chiwenchen.github.io/blog/2015/05/13/rails-basic-controller/"/>
+    <updated>2015-05-13T11:53:23+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2015/05/13/rails-basic-controller</id>
+    <content type="html"><![CDATA[<p><code>C</code> stands for Controller in the entire <code>MVC</code> structure, it basically has two different types of methods including <code>action</code> and <code>helper</code>. <code>action</code> methods handle request routed by url, interact with model and then give response back to the browser. and the <code>helper</code> methods is used by the <code>action</code> method.</p>
+
+<!-- more -->
+
+
+<p>In general, controller act the middle man between views and models.</p>
+
+<h2>Controller file and basic content</h2>
+
+
+<p>By Rails convention, the file name of controller is snakecase and plural, for instance <code>posts_controller.rb</code> and will place under the <code>controllers</code> folder. so the file structure looks like.
+<code>rb
+PROJECT FOLDER
+    -&gt; app
+        -&gt; controllers
+        -&gt; posts_controller.rb
+</code>
+Next, we have to define the class inside the <code>.rb</code> file.</p>
+
+<pre><code class="rb">class PostsController &lt; ApplicationController
+    #the class name must be CamelCase and plural.
+end
+</code></pre>
+
+<p>Next, inside the <code>.rb</code> file, controller will have basic seven actions defined by RESTFUL structure which are <code>index</code>, <code>show</code>, <code>new</code>, <code>create</code>, <code>edit</code>, <code>update</code> and <code>destroy</code>, but be remind that the actions are not limited to this seven basic actions according to particular cases.</p>
+
+<h3>Index action</h3>
+
+
+<p><code>index</code> action is used to list all the objects of the resource, for example, we can use index to list out all the posts in our webapp. so here is how we define index action.
+<code>
+def index
+    @post = Post.all
+end
+</code>
+Here we only do one simple thing(actually two, another one is hidden). we retrive all the instance objects of the Post class and store it to the <code>@post</code> instance variable.</p>
+
+<p>Another thing we do is not shown here that is render the index template. By Rails convention, the controller action will automatically render the template which is sharing the same name of itself. in this case:
+<code>
+PROJECT FOLDER
+    -&gt; app
+        -&gt; views
+            -&gt; posts
+                -&gt; index.html.erb
+</code>
+if we write it out, the method will like this:
+<code>
+def index
+    @post = Post.all
+    render 'posts#index'
+end
+</code>
+<code>index</code> action is done its job! receive the request, interact with DB to retrive data and pass the data to relative template(views).</p>
+
+<h3>Show action</h3>
+
+
+<p><code>show</code> action is used when we want to deal with single object of the resource, like if we want to display one particular post.
+<code>
+def show
+    @post = Post.find(params[:id])
+end
+</code>
+Very similar to the index action, but we retrive the particular post through the information given by params.</p>
+
+<p><code>params</code> is a hash like data structure which is part of the url passing by router. the data will look something like this:
+<code>
+params = {id: 1, title: 'some title', body: 'some content', created_at: '20150101'}
+</code>
+So here we can use <code>find</code> method to get the right object we want by having the <code>id</code> information.</p>
+
+<p>Again, the <code>show</code> action will render the template to preceed the information.</p>
+
+<h3>New and Create action</h3>
+
+
+<p><code>new</code> action is only used to render the form template, so that the user can type data. If we want to create a new post, we will need a form to put in those inforamtion.
+<code>
+def new
+    @post = Post.new
+end
+</code>
+One simple thing happens here, we <code>new</code> a object and store it to instance variable <code>@post</code> and then pass it to the form template.</p>
+
+<p>When the user complete the form and hit <code>submit</code> (See the <a href = '../model-backed-form'>model backed form</a> tutorial here), the routing mechanism will send a <code>POST</code> request and route to &lsquo;create&rsquo; action along with the <code>params</code>.</p>
+
+<p>In <code>create</code> action, we have to store the information into DB and redirect or render basing on the saving condition.</p>
+
+<pre><code class="rb">def create
+    @post = Post.new(strong_params)
+    if @post.save
+        #HAPPY PATH
+        flash[:notice] = 'You have created a new post!'
+        redirect_to root_path
+    else
+        #NO HAPPY PATH
+        render 'new'
+    end
+end
+</code></pre>
+
+<p>Here shows if the <code>@post</code> is saved, then show a notice message to the user and redirect to somewhere else.</p>
+
+<p>If not, render the template again, so the user will be able to fill in the correct information again. (in the <code>new</code> template, it should have some machenism to demonstrate the error message to the user, here is introduction about how to show <a href = '../error-message-for-model-backed-form'>error message for the model backed form</a>)</p>
+
+<h3>Edit and Update action</h3>
+
+
+<p><code>edit</code> is the action similar to <code>new</code> used for rendering a form for user to fill in some information, but at this time, it updates a existing object.</p>
+
+<pre><code>def edit
+    @post = Post.find(params[:id])
+end
+</code></pre>
+
+<p>After &lsquo;edit&rsquo; action, <code>update</code> action is executed just like the <code>create</code> action to overwrite the data in DB and then redirect or render base on the update condition.</p>
+
+<pre><code>def update
+    @post = Post.find(params[:id])
+    if @post.update(strong_params)
+        #HAPPY PATH
+        flash[:notice] = 'You have updated this post!'
+        redirect_to post_path(@post)
+    else
+        #NO HAPPY PATH
+        render 'edit'
+    end
+end
+</code></pre>
+
+<h3>Destroy action</h3>
+
+
+<p><code>destroy</code> action is used to delete the particular data from the DB.</p>
+
+<pre><code>def destroy
+    Post.destroy(strong_params)
+end
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>
