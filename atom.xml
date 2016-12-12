@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2016-12-08T14:50:38+08:00</updated>
+  <updated>2016-12-12T15:19:48+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New Post From Anoth Machine]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/12/12/new-post-from-anoth-machine/"/>
+    <updated>2016-12-12T15:16:31+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2016/12/12/new-post-from-anoth-machine</id>
+    <content type="html"><![CDATA[<p>This is the post form MAC2</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Install Ubuntu, Nginx, Postgresql and Passenger in AWS]]></title>
@@ -2122,48 +2131,6 @@ Also another thing is to prepare our test database, because the test database is
 </span><span class='line'>rake test:all                           # Run tests quickly by merging all types and not resetting db
 </span><span class='line'>rake test:all:db                        # Run tests quickly, but also reset db</span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Setup_handy_development_env]]></title>
-    <link href="http://chiwenchen.github.io/blog/2015/05/24/setup-handy-development-env/"/>
-    <updated>2015-05-24T15:10:44+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2015/05/24/setup-handy-development-env</id>
-    <content type="html"><![CDATA[<p>This post will collect some very handy set up for the RoR develop environment.</p>
-
-<!-- more -->
-
-
-<h2>Better Terminal and bash</h2>
-
-
-<p>By following the tutorial in <a herf = 'https://medium.com/salesforce-ux/iterm2-with-zsh-shell-5944ee0502ac'>iTerm2 with Zsh Shell</a>. We will be using the iTerm2 and have two very lovely teature.</p>
-
-<ol>
-<li>Shows the git branch in the terminal</li>
-<li>Shorten the header of every line</li>
-</ol>
-
-
-<p>To show the work through and get rid of the tutorial. just 3 things to do here to set it up.</p>
-
-<ol>
-  <li>install <a href = 'https://www.iterm2.com/'>iTerm2</a></li>
-  <li>
-    in Terminal, make this command
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ chsh -s /bin/zsh</span></code></pre></td></tr></table></div></figure>
-  </li>
-  <li>
-    one more command
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh</span></code></pre></td></tr></table></div></figure>
-  </li>  
-</ol>
-
-
-<p>Now, reopen the iTerm2, and you are good to go.</p>
 ]]></content>
   </entry>
   
