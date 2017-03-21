@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2016-12-12T15:19:48+08:00</updated>
+  <updated>2017-03-21T15:52:40+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -14,11 +14,85 @@
 
   
   <entry>
-    <title type="html"><![CDATA[New Post From Anoth Machine]]></title>
-    <link href="http://chiwenchen.github.io/blog/2016/12/12/new-post-from-anoth-machine/"/>
+    <title type="html"><![CDATA[Steps for Deploy From Different Machine]]></title>
+    <link href="http://chiwenchen.github.io/blog/2017/03/21/steps-for-deploy-from-different-machine/"/>
+    <updated>2017-03-21T15:47:06+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2017/03/21/steps-for-deploy-from-different-machine</id>
+    <content type="html"><![CDATA[<p>if you want to deploy your Octopress from multipal machines, here is the post you can reference to configure your new machine to match the needs.</p>
+
+<p><a href="http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/">http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/</a></p>
+
+<p>before you deploy new commit from a new machine, yyou have to make sure the floder is in sync, here is the steps to do so.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd to/your/octopress/folder
+</span><span class='line'>$ git pull origin source
+</span><span class='line'>$ cd _deploy
+</span><span class='line'>$ git pull origin master
+</span><span class='line'>
+</span><span class='line'>###### now you can create new post and commit...
+</span><span class='line'>$ rake new_post
+</span><span class='line'>... and so on
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Put Img in Middle of Hr Tag]]></title>
+    <link href="http://chiwenchen.github.io/blog/2016/12/12/put-img-inmiddle-of-hr-tag/"/>
     <updated>2016-12-12T15:16:31+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2016/12/12/new-post-from-anoth-machine</id>
-    <content type="html"><![CDATA[<p>This is the post form MAC2</p>
+    <id>http://chiwenchen.github.io/blog/2016/12/12/put-img-inmiddle-of-hr-tag</id>
+    <content type="html"><![CDATA[<p>This is one way to put image in the middle of hr</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='haml'><span class='line'><span class="nt">%hr</span><span class="nc">.half</span>
+</span><span class='line'><span class="nc">.step-img</span><span class="p">=</span> <span class="n">image_tag</span> <span class="s2">&quot;step-3.png&quot;</span>
+</span><span class='line'><span class="nt">%hr</span><span class="nc">.half</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='css'><span class='line'><span class="nc">.half</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">width</span><span class="o">:</span> <span class="m">45%</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nc">.step-img</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">width</span><span class="o">:</span> <span class="m">9%</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">img</span> <span class="err">{</span>
+</span><span class='line'>    <span class="k">display</span><span class="o">:</span> <span class="k">block</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">margin</span><span class="o">:</span> <span class="m">0</span> <span class="k">auto</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">margin-top</span><span class="o">:</span> <span class="m">-24px</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="err">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 ]]></content>
   </entry>
   
@@ -2081,55 +2155,6 @@ Also another thing is to prepare our test database, because the test database is
 </span></code></pre></td></tr></table></div></figure>
 
 
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Rake - Database Tasks]]></title>
-    <link href="http://chiwenchen.github.io/blog/2015/05/24/rake-mission/"/>
-    <updated>2015-05-24T23:15:24+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2015/05/24/rake-mission</id>
-    <content type="html"><![CDATA[<p>Type below task in terminal to list all tasks about database.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake -T | grep</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here is all the list of the rake task avaliable for database manipulation.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ake db:create                          # Creates the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:create:all to create all databases in the config)
-</span><span class='line'>rake db:drop                            # Drops the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:drop:all to drop all databases in the config)
-</span><span class='line'>rake db:fixtures:load                   # Load fixtures into the current environment's database
-</span><span class='line'>rake db:migrate                         # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
-</span><span class='line'>rake db:migrate:status                  # Display status of migrations
-</span><span class='line'>rake db:rollback                        # Rolls the schema back to the previous version (specify steps w/ STEP=n)
-</span><span class='line'>rake db:schema:cache:clear              # Clear a db/schema_cache.dump file
-</span><span class='line'>rake db:schema:cache:dump               # Create a db/schema_cache.dump file
-</span><span class='line'>rake db:schema:dump                     # Create a db/schema.rb file that is portable against any DB supported by AR
-</span><span class='line'>rake db:schema:load                     # Load a schema.rb file into the database
-</span><span class='line'>rake db:seed                            # Load the seed data from db/seeds.rb
-</span><span class='line'>rake db:setup                           # Create the database, load the schema, and initialize with the seed data (use db:reset to also drop the database first)
-</span><span class='line'>rake db:structure:dump                  # Dump the database structure to db/structure.sql
-</span><span class='line'>rake db:version                         # Retrieves the current schema version number
-</span><span class='line'>rake test:all                           # Run tests quickly by merging all types and not resetting db
-</span><span class='line'>rake test:all:db                        # Run tests quickly, but also reset db</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>

@@ -114,6 +114,62 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2016-02-17T15:30:25+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
+        
+      </p>
+    
+    
+      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2016/02/17/elasticsearch-with-rails/" itemprop="url">Elasticsearch With Rails</a></h2>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>To implement more complicate or advanced search engine in rails app, <code>elasticsearch</code> is a very great open source search and analysis tool with full function.</p>
+
+<h2>Set up Elasticsearch with rails</h2>
+
+
+<p>To set up elasticsearch, firstly we need to add this two gems in <code>Gemfile</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;elasticsearch-model&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;elasticsearch-rails&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are more options in the wild, for instance, <code>tire</code> is another choice, also you can find tutorial for <code>tire</code> in Rails Cast.</p>
+
+</div>
+  
+  
+    <footer>
+      <a class="read-more btn btn-default" href="/blog/2016/02/17/elasticsearch-with-rails/">Read on &rarr;</a>
+    </footer>
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-11-13T18:04:55+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
         
       </p>
@@ -520,83 +576,6 @@
 
         </article>
       
-      
-        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-24T23:15:24+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
-        
-      </p>
-    
-    
-      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2015/05/24/rake-mission/" itemprop="url">Rake - Database Tasks</a></h2>
-    
-  </header>
-
-
-  <div class="entry-content clearfix" itemprop="articleBody description"><p>Type below task in terminal to list all tasks about database.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake -T | grep</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Here is all the list of the rake task avaliable for database manipulation.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ake db:create                          # Creates the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:create:all to create all databases in the config)
-</span><span class='line'>rake db:drop                            # Drops the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:drop:all to drop all databases in the config)
-</span><span class='line'>rake db:fixtures:load                   # Load fixtures into the current environment's database
-</span><span class='line'>rake db:migrate                         # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
-</span><span class='line'>rake db:migrate:status                  # Display status of migrations
-</span><span class='line'>rake db:rollback                        # Rolls the schema back to the previous version (specify steps w/ STEP=n)
-</span><span class='line'>rake db:schema:cache:clear              # Clear a db/schema_cache.dump file
-</span><span class='line'>rake db:schema:cache:dump               # Create a db/schema_cache.dump file
-</span><span class='line'>rake db:schema:dump                     # Create a db/schema.rb file that is portable against any DB supported by AR
-</span><span class='line'>rake db:schema:load                     # Load a schema.rb file into the database
-</span><span class='line'>rake db:seed                            # Load the seed data from db/seeds.rb
-</span><span class='line'>rake db:setup                           # Create the database, load the schema, and initialize with the seed data (use db:reset to also drop the database first)
-</span><span class='line'>rake db:structure:dump                  # Dump the database structure to db/structure.sql
-</span><span class='line'>rake db:version                         # Retrieves the current schema version number
-</span><span class='line'>rake test:all                           # Run tests quickly by merging all types and not resetting db
-</span><span class='line'>rake test:all:db                        # Run tests quickly, but also reset db</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -620,15 +599,15 @@
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/blog/2016/12/12/new-post-from-anoth-machine/">New Post From Anoth Machine</a>
+    <a class="list-group-item " href="/blog/2017/03/21/steps-for-deploy-from-different-machine/">Steps for Deploy From Different Machine</a>
+    
+    <a class="list-group-item " href="/blog/2016/12/12/put-img-inmiddle-of-hr-tag/">Put Img in Middle of Hr Tag</a>
     
     <a class="list-group-item " href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
     
     <a class="list-group-item " href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
     
     <a class="list-group-item " href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
-    
-    <a class="list-group-item " href="/blog/2016/03/17/neo4j-and-graph-database/">Neo4j and Graph Database</a>
     
   </div>
 </section>
@@ -648,7 +627,7 @@
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2016 - Your Name<br>
+  Copyright &copy; 2017 - Your Name<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.

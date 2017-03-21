@@ -114,6 +114,83 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-24T23:15:24+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
+        
+      </p>
+    
+    
+      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2015/05/24/rake-mission/" itemprop="url">Rake - Database Tasks</a></h2>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>Type below task in terminal to list all tasks about database.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake -T | grep</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is all the list of the rake task avaliable for database manipulation.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ake db:create                          # Creates the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:create:all to create all databases in the config)
+</span><span class='line'>rake db:drop                            # Drops the database from DATABASE_URL or config/database.yml for the current RAILS_ENV (use db:drop:all to drop all databases in the config)
+</span><span class='line'>rake db:fixtures:load                   # Load fixtures into the current environment's database
+</span><span class='line'>rake db:migrate                         # Migrate the database (options: VERSION=x, VERBOSE=false, SCOPE=blog)
+</span><span class='line'>rake db:migrate:status                  # Display status of migrations
+</span><span class='line'>rake db:rollback                        # Rolls the schema back to the previous version (specify steps w/ STEP=n)
+</span><span class='line'>rake db:schema:cache:clear              # Clear a db/schema_cache.dump file
+</span><span class='line'>rake db:schema:cache:dump               # Create a db/schema_cache.dump file
+</span><span class='line'>rake db:schema:dump                     # Create a db/schema.rb file that is portable against any DB supported by AR
+</span><span class='line'>rake db:schema:load                     # Load a schema.rb file into the database
+</span><span class='line'>rake db:seed                            # Load the seed data from db/seeds.rb
+</span><span class='line'>rake db:setup                           # Create the database, load the schema, and initialize with the seed data (use db:reset to also drop the database first)
+</span><span class='line'>rake db:structure:dump                  # Dump the database structure to db/structure.sql
+</span><span class='line'>rake db:version                         # Retrieves the current schema version number
+</span><span class='line'>rake test:all                           # Run tests quickly by merging all types and not resetting db
+</span><span class='line'>rake test:all:db                        # Run tests quickly, but also reset db</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-05-24T15:10:44+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
         
       </p>
@@ -587,75 +664,6 @@ And also the params will contain</p>
 
         </article>
       
-      
-        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-04-28T15:49:13+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
-        
-      </p>
-    
-    
-      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2015/04/28/rails-model-associations/" itemprop="url">Rails Model Associations</a></h2>
-    
-  </header>
-
-
-  <div class="entry-content clearfix" itemprop="articleBody description"><p>Here I will record associations syntax for fast reference.</p>
-
-<h2>1 : M Association</h2>
-
-
-<p><strong>Use Case: A user can have many posts.</strong></p>
-
-<p><code>user</code> is <em>one</em> side:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>post</code> is <em>many</em> side:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">class</span> <span class="nc">Post</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:user</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-</div>
-  
-  
-    <footer>
-      <a class="read-more btn btn-default" href="/blog/2015/04/28/rails-model-associations/">Read on &rarr;</a>
-    </footer>
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -679,15 +687,15 @@ And also the params will contain</p>
   
   <div id="recent_posts" class="list-group">
     
-    <a class="list-group-item " href="/blog/2016/12/12/new-post-from-anoth-machine/">New Post From Anoth Machine</a>
+    <a class="list-group-item " href="/blog/2017/03/21/steps-for-deploy-from-different-machine/">Steps for Deploy From Different Machine</a>
+    
+    <a class="list-group-item " href="/blog/2016/12/12/put-img-inmiddle-of-hr-tag/">Put Img in Middle of Hr Tag</a>
     
     <a class="list-group-item " href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
     
     <a class="list-group-item " href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
     
     <a class="list-group-item " href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
-    
-    <a class="list-group-item " href="/blog/2016/03/17/neo4j-and-graph-database/">Neo4j and Graph Database</a>
     
   </div>
 </section>
@@ -707,7 +715,7 @@ And also the params will contain</p>
     </div>
     <footer role="contentinfo"><div class="container">
     <p class="text-muted credits">
-  Copyright &copy; 2016 - Your Name<br>
+  Copyright &copy; 2017 - Your Name<br>
   <small>
       <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>,
       <span class="credit">customized with <a href="https://github.com/kAworu/octostrap3">octostrap3</a></span>.
