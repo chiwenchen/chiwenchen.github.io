@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2017-03-21T15:52:40+08:00</updated>
+  <updated>2017-03-23T11:48:26+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -14,15 +14,111 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Deploy Docker on AWS ECS]]></title>
+    <link href="http://chiwenchen.github.io/blog/2017/03/21/deploy-docker-on-aws-ecs/"/>
+    <updated>2017-03-21T15:55:13+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2017/03/21/deploy-docker-on-aws-ecs</id>
+    <content type="html"><![CDATA[<h2>Install AWS CLI</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+</span><span class='line'>unzip awscli-bundle.zip
+</span><span class='line'>sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+</span><span class='line'>rm -rf awscli-bundle.zip awscli-bundle
+</span><span class='line'>aws --version
+</span><span class='line'>aws configure
+</span><span class='line'>$ AWS Access Key ID [None]: AKIAJFDFWOHD6SQEWQ
+</span><span class='line'>$ AWS Secret Access Key [None]: JSgxIzkN8tC6vqfsXDGwC3Z+mJdH0ROF
+</span><span class='line'>$ Default region name [None]: us-east-1
+</span><span class='line'>$ Default output format [None]:</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Create SSH keypair</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws ec2 create-key-pair --key-name aws-chiwen --query 'KeyMaterial' --output text &gt; ~/.ssh/aws-chiwen.pem
+</span><span class='line'>chmod 400 ~/.ssh/aws-chiwen.pem
+</span><span class='line'>aws ec2 describe-key-pairs --key-name aws-chiwen</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Configure Security Group</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># create security group
+</span><span class='line'>aws ec2 create-security-group --group-name chiwen_SG_useast1 --description "Security group for chiwen on us-east-1"
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 22 --cidr 0.0.0.0/0
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 80 --cidr 0.0.0.0/0
+</span><span class='line'># open port for Postgres
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 5432 --cidr 0.0.0.0/0 --source-group sg-f61db289
+</span><span class='line'># open port for redis
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 6379 --cidr 0.0.0.0/0 --source-group sg-f61db289
+</span><span class='line'># show security group config
+</span><span class='line'>aws ec2 describe-security-groups --group-id sg-f61db289</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Create ECS cluster</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws ecs create-cluster --cluster-name deepdive # create a cluster
+</span><span class='line'>aws ecs list-clusters # list all clusters
+</span><span class='line'>aws ecs describe-clusters --clusters deepdive # show detail for a cluster</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Container Agent</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws s3api create-bucket --bucket chiwen_deepdive
+</span><span class='line'>cd deepdive
+</span><span class='line'>aws s3 cp ecs.config s3://chiwen_deepdive/ecs.config
+</span><span class='line'>aws s3 ls s3://chiwen_deepdive</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Steps for Deploy From Different Machine]]></title>
     <link href="http://chiwenchen.github.io/blog/2017/03/21/steps-for-deploy-from-different-machine/"/>
     <updated>2017-03-21T15:47:06+08:00</updated>
     <id>http://chiwenchen.github.io/blog/2017/03/21/steps-for-deploy-from-different-machine</id>
-    <content type="html"><![CDATA[<p>if you want to deploy your Octopress from multipal machines, here is the post you can reference to configure your new machine to match the needs.</p>
+    <content type="html"><![CDATA[<p>If you want to deploy your Octopress from multipal machines, here is the post you can reference to configure your new machine to match the needs.</p>
 
 <p><a href="http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/">http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/</a></p>
 
-<p>before you deploy new commit from a new machine, yyou have to make sure the floder is in sync, here is the steps to do so.</p>
+<p>before you deploy new commit from a new machine, you have to make sure the octopress folder is in sync, here is the steps to do so.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -39,8 +135,7 @@
 </span><span class='line'>
 </span><span class='line'>###### now you can create new post and commit...
 </span><span class='line'>$ rake new_post
-</span><span class='line'>... and so on
-</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>... and so on</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>
@@ -2055,107 +2150,6 @@ then we can execute the test like this.
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span><span class="o">/</span><span class="n">users_controller_spec</span><span class="o">.</span><span class="n">rb</span><span class="p">:</span><span class="mi">1</span>
 </span></code></pre></td></tr></table></div></figure></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Rspec - Build Rspec and First Model Test]]></title>
-    <link href="http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test/"/>
-    <updated>2015-05-26T14:12:08+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2015/05/26/rspec-model-test</id>
-    <content type="html"><![CDATA[<p>Rspec is a widespread BDD(Behaviour-Driven Development) tool for ruby. coding with Rspec, we can develop our application in TDD way. write testing code(also can be a spec document) and then write code to fulfill the requirement of testing code. once all the test passed, the code base is also finished. Here we will talk about how to set up Rspec environment and also write the Unit test for our model.</p>
-
-<!-- more -->
-
-
-<h2>Build up the Rspec test environment</h2>
-
-
-<p>in <code>Gemfile</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">group</span> <span class="ss">:test</span><span class="p">,</span> <span class="ss">:development</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">gem</span> <span class="s1">&#39;rspec-rails&#39;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and then run <code>bundle install</code> to install the <code>rspec</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rails</span> <span class="n">g</span> <span class="ss">rspec</span><span class="p">:</span><span class="n">install</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will generate two documents and one folder: <code>spec</code> folder, <code>.rspec</code> and <code>spec/spec_helper.rb</code>.
-Also another thing is to prepare our test database, because the test database is seperate from the development databse and will not interfere each other, but will share the same schema. To run below command generate the test database.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rake</span> <span class="ss">db</span><span class="p">:</span><span class="nb">test</span><span class="ss">:prepare</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>the <code>spec/spec_helper.rb</code> is the config file used to configure Rspec itself. Meanwhile, <code>spec</code> is where we will put our testing file. Now generate a folder <code>models</code> under <code>spec</code>. Here is to place all the <strong>Unit test</strong> for each models. Under the <code>models</code>, we can create a file called <code>PROJECTNAME_spec.rb</code>. Which the <code>PROJECTNAME</code> will same as your project name. In this case, we name it <code>myflix_spec.rb</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span> <span class="c1">#this line is required in all test file. the rspec will load rails enviroment alos with this class.</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">describe</span> <span class="no">Video</span> <span class="k">do</span> <span class="c1">#&#39;describe&#39; is the syntax for test, and the Video is the model name matchs the model we are going to test.</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;save itself&#39;</span> <span class="k">do</span> <span class="c1"># &#39;it&#39; is the saved word</span>
-</span><span class='line'>    <span class="c1">#1.  set up the stage(data)</span>
-</span><span class='line'>    <span class="n">video</span> <span class="o">=</span> <span class="no">Video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="ss">title</span><span class="p">:</span> <span class="s1">&#39;Mission Impossible 3&#39;</span><span class="p">,</span> <span class="ss">description</span><span class="p">:</span> <span class="s1">&#39;Very cool movie&#39;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">#2.  perform a action</span>
-</span><span class='line'>    <span class="n">video</span><span class="o">.</span><span class="n">save</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">#3.  verify the result</span>
-</span><span class='line'>    <span class="no">Video</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="s1">&#39;Mission Impossible 3&#39;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Next thing is to run <code>rspec</code> in terminal to see the result.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="err">➜</span>  <span class="n">myflix</span> <span class="ss">git</span><span class="p">:(</span><span class="n">master</span><span class="p">)</span> <span class="err">✗</span> <span class="n">rspec</span>
-</span><span class='line'><span class="o">.</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Finished</span> <span class="k">in</span> <span class="mi">0</span><span class="o">.</span><span class="mo">03</span><span class="mi">922</span> <span class="n">seconds</span>
-</span><span class='line'><span class="mi">1</span> <span class="n">example</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failures</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">Randomized</span> <span class="n">with</span> <span class="n">seed</span> <span class="mi">18414</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
 ]]></content>
   </entry>
   

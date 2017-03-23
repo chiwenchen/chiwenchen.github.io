@@ -114,6 +114,130 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2017-03-21T15:55:13+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
+        
+      </p>
+    
+    
+      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2017/03/21/deploy-docker-on-aws-ecs/" itemprop="url">Deploy Docker on AWS ECS</a></h2>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><h2>Install AWS CLI</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+</span><span class='line'>unzip awscli-bundle.zip
+</span><span class='line'>sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+</span><span class='line'>rm -rf awscli-bundle.zip awscli-bundle
+</span><span class='line'>aws --version
+</span><span class='line'>aws configure
+</span><span class='line'>$ AWS Access Key ID [None]: AKIAJFDFWOHD6SQEWQ
+</span><span class='line'>$ AWS Secret Access Key [None]: JSgxIzkN8tC6vqfsXDGwC3Z+mJdH0ROF
+</span><span class='line'>$ Default region name [None]: us-east-1
+</span><span class='line'>$ Default output format [None]:</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Create SSH keypair</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws ec2 create-key-pair --key-name aws-chiwen --query 'KeyMaterial' --output text &gt; ~/.ssh/aws-chiwen.pem
+</span><span class='line'>chmod 400 ~/.ssh/aws-chiwen.pem
+</span><span class='line'>aws ec2 describe-key-pairs --key-name aws-chiwen</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Configure Security Group</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># create security group
+</span><span class='line'>aws ec2 create-security-group --group-name chiwen_SG_useast1 --description "Security group for chiwen on us-east-1"
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 22 --cidr 0.0.0.0/0
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 80 --cidr 0.0.0.0/0
+</span><span class='line'># open port for Postgres
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 5432 --cidr 0.0.0.0/0 --source-group sg-f61db289
+</span><span class='line'># open port for redis
+</span><span class='line'>aws ec2 authorize-security-group-ingress --group-id sg-f61db289 --protocol tcp --port 6379 --cidr 0.0.0.0/0 --source-group sg-f61db289
+</span><span class='line'># show security group config
+</span><span class='line'>aws ec2 describe-security-groups --group-id sg-f61db289</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Create ECS cluster</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws ecs create-cluster --cluster-name deepdive # create a cluster
+</span><span class='line'>aws ecs list-clusters # list all clusters
+</span><span class='line'>aws ecs describe-clusters --clusters deepdive # show detail for a cluster</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<h2>Container Agent</h2>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aws s3api create-bucket --bucket chiwen_deepdive
+</span><span class='line'>cd deepdive
+</span><span class='line'>aws s3 cp ecs.config s3://chiwen_deepdive/ecs.config
+</span><span class='line'>aws s3 ls s3://chiwen_deepdive</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2017-03-21T15:47:06+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
         
       </p>
@@ -124,11 +248,11 @@
   </header>
 
 
-  <div class="entry-content clearfix" itemprop="articleBody description"><p>if you want to deploy your Octopress from multipal machines, here is the post you can reference to configure your new machine to match the needs.</p>
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>If you want to deploy your Octopress from multipal machines, here is the post you can reference to configure your new machine to match the needs.</p>
 
 <p><a href="http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/">http://rajpushkar.github.io/blog/2013/09/27/how-to-operate-octopress-blog-from-multiple-places/</a></p>
 
-<p>before you deploy new commit from a new machine, yyou have to make sure the floder is in sync, here is the steps to do so.</p>
+<p>before you deploy new commit from a new machine, you have to make sure the octopress folder is in sync, here is the steps to do so.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -145,8 +269,7 @@
 </span><span class='line'>
 </span><span class='line'>###### now you can create new post and commit...
 </span><span class='line'>$ rake new_post
-</span><span class='line'>... and so on
-</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>... and so on</span></code></pre></td></tr></table></div></figure>
 
 </div>
   
@@ -939,55 +1062,6 @@ data at rest -> encrype when store data</p>
 
         </article>
       
-      
-        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2016-02-23T12:42:54+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
-        
-      </p>
-    
-    
-      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2016/02/23/test-styles-of-rails/" itemprop="url">Test Styles of Rails</a></h2>
-    
-  </header>
-
-
-  <div class="entry-content clearfix" itemprop="articleBody description"><p>There are three different testing style or process we use in developing rails app.</p>
-
-<h2>Outside in</h2>
-
-
-<p>The first is called outside in, this style means when we developing a new feature, we thinking in a integration level or business level first, by doing this, we can clarify the business value of this feature in the first place, than from here, this will drive us to implement a level deeper which is controller level to fulfill the need from the feature, and then one level deeper to model layer.</p>
-
-<p>The most common usecase of the approach is when we work with customer and the requiremnts is very clear, just write out the descriptions of the feature and implement it step by step will make the developing process more fluent.</p>
-
-</div>
-  
-  
-    <footer>
-      <a class="read-more btn btn-default" href="/blog/2016/02/23/test-styles-of-rails/">Read on &rarr;</a>
-    </footer>
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -1011,6 +1085,8 @@ data at rest -> encrype when store data</p>
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2017/03/21/deploy-docker-on-aws-ecs/">Deploy Docker on AWS ECS</a>
+    
     <a class="list-group-item " href="/blog/2017/03/21/steps-for-deploy-from-different-machine/">Steps for Deploy From Different Machine</a>
     
     <a class="list-group-item " href="/blog/2016/12/12/put-img-inmiddle-of-hr-tag/">Put Img in Middle of Hr Tag</a>
@@ -1018,8 +1094,6 @@ data at rest -> encrype when store data</p>
     <a class="list-group-item " href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
     
     <a class="list-group-item " href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
-    
-    <a class="list-group-item " href="/blog/2016/04/30/d3-dot-js/">D3.js</a>
     
   </div>
 </section>

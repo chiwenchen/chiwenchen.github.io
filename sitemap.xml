@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://chiwenchen.github.io/blog/2017/03/21/deploy-docker-on-aws-ecs/</loc>
+<lastmod>2017-03-21T15:55:13+08:00</lastmod>
+</url>
+<url>
 <loc>http://chiwenchen.github.io/blog/2017/03/21/steps-for-deploy-from-different-machine/</loc>
 <lastmod>2017-03-21T15:47:06+08:00</lastmod>
 </url>
@@ -179,14 +183,5 @@
 </url>
 <url>
 <loc>http://chiwenchen.github.io/blog/categories/sublime/</loc>
-</url>
-<url>
-<loc>http://chiwenchen.github.io/posts/2/</loc>
-</url>
-<url>
-<loc>http://chiwenchen.github.io/posts/3/</loc>
-</url>
-<url>
-<loc>http://chiwenchen.github.io/posts/4/</loc>
 </url>
 </urlset>
