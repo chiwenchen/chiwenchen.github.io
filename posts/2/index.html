@@ -114,6 +114,50 @@
 
 
 
+<span class="glyphicon glyphicon-calendar"></span> <time datetime="2016-02-24T16:32:45+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
+        
+      </p>
+    
+    
+      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2016/02/24/decorator-for-model/" itemprop="url">Decorator</a></h2>
+    
+  </header>
+
+
+  <div class="entry-content clearfix" itemprop="articleBody description"><p>For the typical situation, all the logic should only live in model layer, and controller only responsible on grap the data we need and show it in view.</p>
+
+<p>But in some situation, we will still need logic code in view layer. we can certainly do this, but this will make the view template too complicate than it should be and harder to read. so in this type of situation, we can use <code>decorator</code> to extract logic code from view template.</p>
+
+</div>
+  
+  
+    <footer>
+      <a class="read-more btn btn-default" href="/blog/2016/02/24/decorator-for-model/">Read on &rarr;</a>
+    </footer>
+  
+
+
+        </article>
+      
+      
+        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+          
+  <header class="page-header">
+    
+      <p class="meta text-muted text-uppercase">
+        
+
+
+
+
+
+
+
+
+
+
+
+
 <span class="glyphicon glyphicon-calendar"></span> <time datetime="2016-02-23T12:42:54+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
         
       </p>
@@ -541,48 +585,6 @@
 
         </article>
       
-      
-        <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-          
-  <header class="page-header">
-    
-      <p class="meta text-muted text-uppercase">
-        
-
-
-
-
-
-
-
-
-
-
-
-
-<span class="glyphicon glyphicon-calendar"></span> <time datetime="2015-06-24T14:47:36+08:00"  data-updated="true" itemprop="datePublished dateCreated">ordinal</time>
-        
-      </p>
-    
-    
-      <h2 class="entry-title" itemprop="name headline"><a href="/blog/2015/06/24/rspec-controller-test/" itemprop="url">Rspec - Controller Test</a></h2>
-    
-  </header>
-
-
-  <div class="entry-content clearfix" itemprop="articleBody description"><p>To better implement controller, we can write specification(test) for each controller to define and test their behavior. The biggest benefit is we can have fully control of how controllers behave in all aspect without testing it manully, if we do not use Rspec to implement auto test, we have to use <code>rails console</code> or <code>browser</code> to test it by ourself. In other words, when we write Rspec, we have to make sure the spec is covering all the possibility, otherwise, we might be caught by some annoying bugs.</p>
-
-</div>
-  
-  
-    <footer>
-      <a class="read-more btn btn-default" href="/blog/2015/06/24/rspec-controller-test/">Read on &rarr;</a>
-    </footer>
-  
-
-
-        </article>
-      
     </div>
 
     <ul class="pager">
@@ -606,6 +608,8 @@
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2017/05/05/transaction-for-aasm/">Transaction for AASM</a>
+    
     <a class="list-group-item " href="/blog/2017/03/21/deploy-docker-on-aws-ecs/">Deploy Docker on AWS ECS</a>
     
     <a class="list-group-item " href="/blog/2017/03/21/steps-for-deploy-from-different-machine/">Steps for Deploy From Different Machine</a>
@@ -613,8 +617,6 @@
     <a class="list-group-item " href="/blog/2016/12/12/put-img-inmiddle-of-hr-tag/">Put Img in Middle of Hr Tag</a>
     
     <a class="list-group-item " href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
-    
-    <a class="list-group-item " href="/blog/2016/07/23/aws-training-essential/">AWS Training Essential</a>
     
   </div>
 </section>

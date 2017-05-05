@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2017-03-23T11:48:26+08:00</updated>
+  <updated>2017-05-05T16:19:13+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,6 +12,41 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Transaction for AASM]]></title>
+    <link href="http://chiwenchen.github.io/blog/2017/05/05/transaction-for-aasm/"/>
+    <updated>2017-05-05T16:08:57+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2017/05/05/transaction-for-aasm</id>
+    <content type="html"><![CDATA[<p>By default, <code>ActiveRecord::Base.transaction</code> won&rsquo;t rollback the state changes executed by aasm, the reason is documented in statement of AASM gem offical README.</p>
+
+<blockquote><p>If you want to encapsulate state changes within an own transaction, the behavior of this nested transaction might be confusing. Take a look at ActiveRecord Nested Transactions if you want to know more about this. Nevertheless, AASM by default requires a new transaction transaction(:requires_new => true)</p></blockquote>
+
+
+<p>so, if you want the transaction be effective to aasm as expected, please add <code>:requires_new_transaction =&gt; false</code> to the aasm configuration shown as below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Job</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">AASM</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">aasm</span> <span class="ss">:requires_new_transaction</span> <span class="o">=&gt;</span> <span class="kp">false</span> <span class="k">do</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Deploy Docker on AWS ECS]]></title>
@@ -1967,189 +2002,6 @@ the reason to add this is because typically when we run normal specs, thess spec
 <p>Be noticed that the <code>Macros</code> can also be used in the shared_examples. <code>clear_current_user</code> in this case.</p>
 
 <p>And also we can use <code>let</code> to define the variable if we do not want to hard code something. For instance, <code>action</code> will be different when we call this test in different controller/action. so it&rsquo;s a good situation to use <code>let</code> here.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Rspec - Controller Test]]></title>
-    <link href="http://chiwenchen.github.io/blog/2015/06/24/rspec-controller-test/"/>
-    <updated>2015-06-24T14:47:36+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2015/06/24/rspec-controller-test</id>
-    <content type="html"><![CDATA[<p>To better implement controller, we can write specification(test) for each controller to define and test their behavior. The biggest benefit is we can have fully control of how controllers behave in all aspect without testing it manully, if we do not use Rspec to implement auto test, we have to use <code>rails console</code> or <code>browser</code> to test it by ourself. In other words, when we write Rspec, we have to make sure the spec is covering all the possibility, otherwise, we might be caught by some annoying bugs.</p>
-
-<!-- more -->
-
-
-<h2>Fabricator and Faker</h2>
-
-
-<p>To better way we test our code with rspec is to use both <code>fabricator</code> and <code>faker</code> along with our testing. this two gems work together can give us a powerful tool to make fake data for testing.</p>
-
-<p>To install it, just add <code>gem fabricator</code> and <code>gem faker</code> in our Gemfile and run bundle install, and it will be all set.</p>
-
-<h2>Use Fabricator</h2>
-
-
-<p>To use fabricator, we need a folder to put all the fabricators, which build for each models. Add a folder under <code>app/spec</code> called <code>fabricators</code>.
-Inside the folder, let&rsquo;s say we want to automatically generate fake data for <code>User</code> Model, so every time we need to have some data for testing purpose, we don&rsquo;t need to made up data ourself anymore. create a file called <code>User_fabricator.rb</code>. inside the file, put some code like this.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">Fabricator</span><span class="p">(</span><span class="ss">:video</span><span class="p">)</span> <span class="k">do</span> <span class="c1">#video is the model name</span>
-</span><span class='line'>    <span class="n">title</span> <span class="p">{</span><span class="no">Faker</span><span class="o">::</span><span class="no">Lorem</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)}</span> <span class="c1">#title is the parameter</span>
-</span><span class='line'>    <span class="n">description</span> <span class="p">{</span><span class="no">Faker</span><span class="o">::</span><span class="no">Lorem</span><span class="o">.</span><span class="n">sentence</span><span class="p">}</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>
-This is the typical fabricator with faker gem. To see more stuff what faker can create, visit <a href='https://github.com/stympy/faker'>Faker</a></p>
-
-<p><!-- Once we give the rule what to attach to the object when calling fabricator, --> we then can use it like this in our test file.</p>
-
-<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="no">Fabricator</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-This single line will give as a brand new object of <code>User</code> Model filled with fake data.</p>
-
-<p><h2>context, let and before</h2></p>
-
-<p><h4>context</h4></p>
-
-<p><code>context</code> is used when we have some common statement for each test item, then we can group it use <code>context</code>. for example.</p>
-
-<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">context</span> <span class="s1">&#39;with authenticated user&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;sets the @video&#39;</span>
-</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;redirect_to video_path&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="n">context</span> <span class="s1">&#39;user is not authenticated&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;not sets the @video&#39;</span>
-</span><span class='line'>    <span class="n">it</span> <span class="s1">&#39;redirect_to signin_path&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></p>
-
-<p><h4>let</h4></p>
-
-<p><code>let</code> is used to create a variable that can be used in a</p>
-
-<p><h2>Controller testing</h2></p>
-
-<p>To test controller, basiclly there are two functions we need to test. First is setting instance variable that is ready for view, second is to render template or redirect to other action.</p>
-
-<p>Before that, let&rsquo;s create file and write out the basic structure.</p>
-
-<p>create a folder called <code>controllers</code> under <code>app/spec</code>, inside the folder, create a file called <code>users_controller_spec.rb</code>. write the fundamental like this:</p>
-
-<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">describe</span> <span class="no">UsersControllers</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span>
-</span><span class='line'>    <span class="c1">#put test item here</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-The first line is neccessary! line 3 shows which controller we are goning to test, and line 4 is identify which action we are going to test inside this code block. first we need to give the correct HTTP verb to match the route.rb, in this case, it&rsquo;s the <code>GET</code> and following is the name of the action.</p>
-
-<p>Next, puts some test item here.
-<h3>Test the instance object</h3></p>
-
-<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;sets @user&quot;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="c1"># 1. setup the data</span>
-</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Fabricator</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;Tom&#39;</span><span class="p">)</span>
-</span><span class='line'>    <span class="c1"># 2. execute the action</span>
-</span><span class='line'>    <span class="n">get</span> <span class="ss">:show</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span>
-</span><span class='line'>    <span class="c1"># 3. compare the expect with actual result  </span>
-</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">assigns</span><span class="p">(</span><span class="ss">:user</span><span class="p">))</span><span class="o">.</span><span class="n">to</span> <span class="n">eq</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;render show template&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-Line 5, the Fabricator will create a new object for us, but if we want the paricular parameter, we can overwrite it just like overwrite the name to Tom in this case.</p>
-
-<p>Line 7 will send a fake request to action <code>show</code> with the params[:id] set to user.id.</p>
-
-<p>Line 9, the <code>:user</code> equals <code>@user</code>, which is inside the <code>show</code> action, so we can verify if the returned object <code>:user</code>is the same as the user variable here as we expect.</p>
-
-<p><h3>Test render or redirect_to </h3>
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;GET show&quot;</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;redirect to the sign in page&quot;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">user</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="p">(</span><span class="ss">:user</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">get</span> <span class="ss">:show</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span>
-</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">redirect_to</span> <span class="n">front_videos_path</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-Here we alse need to set the instance variable and call the action. the only difference is we call <code>responce</code> reserverd word to specify that we want to verify the routing after the action.</p>
-
-<p>Generally, if the routing is given by rails by convention, then we will skip this test. For example, if the action looks like <code>def show; end</code>, then we won&rsquo;t need to test routing for this action.</p>
-
-<p><h3>Execute test in Terminal</h3>
-running below comand will only execute the test for controllers.</p>
-
-<p><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span>
-</span></code></pre></td></tr></table></div></figure>
-running the below comand will only execute the test written in this particular file.
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span><span class="o">/</span><span class="n">users_controller_spec</span><span class="o">.</span><span class="n">rb</span>
-</span></code></pre></td></tr></table></div></figure>
-running the below comand will only execute the test written in the line you specify.
-for example, the test we want to run is this one:
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">it</span> <span class="s1">&#39;set up the @user&#39;</span>
-</span><span class='line'>  <span class="c1">#testing code</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-then we can execute the test like this.
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">rspec</span> <span class="n">spec</span><span class="o">/</span><span class="n">controllers</span><span class="o">/</span><span class="n">users_controller_spec</span><span class="o">.</span><span class="n">rb</span><span class="p">:</span><span class="mi">1</span>
-</span></code></pre></td></tr></table></div></figure></p>
 ]]></content>
   </entry>
   
