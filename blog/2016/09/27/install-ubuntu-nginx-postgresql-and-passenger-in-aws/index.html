@@ -157,10 +157,13 @@
 <p>step2: give user the sudo authrization</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo visudo
-</span><span class='line'># add [apps ALL=(ALL:ALL) ALL] in the file.</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo visudo</span></code></pre></td></tr></table></div></figure>
 
+
+<h1>add <code>apps ALL=(ALL:ALL) ALL</code> to the end of the file.</h1>
+
+<p>press <code>CTRL + O</code>, and then <code>ENTER</code> to save the edit
+press <code>CTRL + X</code> to exit</p>
 
 <p>step3: switch to apps</p>
 
@@ -183,11 +186,15 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh-keygen
+</span><span class='line'># use the default path and empty passphrase
 </span><span class='line'>$ cd ~/.ssh
 </span><span class='line'>$ touch authorized_keys
 </span><span class='line'>$ vi authorized_keys
-</span><span class='line'>copy and past local machine's public key here</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>copy and past local machine's public key here
+</span><span class='line'>after this approach, you can access the server by `$ ssh apps@YOUR_SERVER_IP` without .pem file. </span></code></pre></td></tr></table></div></figure>
 
 
 <p>step6: make ssh more easy</p>
@@ -213,8 +220,10 @@
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
+<span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo dpkg-reconfigure tzdata
 </span><span class='line'>$ sudo apt-get install ntp
+</span><span class='line'>$ sudo apt-get install ntpdate
 </span><span class='line'>$ sudo ntpdate ntp.ubuntu.com # Update time</span></code></pre></td></tr></table></div></figure>
 
 
@@ -230,9 +239,11 @@
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo hostname your-hostname
 </span><span class='line'>$ sudo vim /etc/hosts
 </span><span class='line'>###
+</span><span class='line'>replace 127.0.0.1 localhost with
 </span><span class='line'>127.0.0.1 your-hostname
 </span><span class='line'>###
 </span><span class='line'>$ sudo vim /etc/hostname
@@ -299,11 +310,12 @@ Since Rails ships with so many dependencies these days, we&rsquo;re going to nee
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
 </span><span class='line'>$ sudo apt-get install -y nodejs
-</span><span class='line'>$ gem install rails -v 4.2.6
+</span><span class='line'>$ gem install rails -v 4.2.6 --no-ri --no-rdoc
 </span><span class='line'>$ rails -v</span></code></pre></td></tr></table></div></figure>
 
 
-<p>step13: install Postgresql</p>
+<p>step13: install Postgresql
+this is for Ubuntu 14.04, if your ubuntu version is differ from this, please visit <code>https://gorails.com/setup/ubuntu/14.10</code></p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -406,8 +418,78 @@ Since Rails ships with so many dependencies these days, we&rsquo;re going to nee
 <p>step19: change root in nginx.conf</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi /etc/nginx/nginx.conf
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi /etc/nginx/nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or generate a new file under /etc/nginx/sites-enabled
+you can name it APP_NAME.conf, and put below configuration</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>server {
+</span><span class='line'>    listen 80;
+</span><span class='line'>    # server_name myguide-staging.zaidei.com
+</span><span class='line'>    server_name ~^.*$;
+</span><span class='line'>
+</span><span class='line'>    # Tell Nginx and Passenger where your app's 'public' directory is
+</span><span class='line'>    root /home/apps/besideyou/current/public;
+</span><span class='line'>
+</span><span class='line'>    rails_env "staging";
+</span><span class='line'>
+</span><span class='line'>    access_log /home/apps/APP_FOLDER/shared/log/access.log;
+</span><span class='line'>    error_log  /home/apps/APP_FOLDER/shared/log/error.log;
+</span><span class='line'>    # APP_FOLDER is auto generated by capistrano when run cap deploy:check
+</span><span class='line'>
+</span><span class='line'>    # Turn on Passenger
+</span><span class='line'>    passenger_enabled on;
+</span><span class='line'>    passenger_ruby /home/apps/.rvm/gems/ruby-2.2.5/wrappers/ruby;
+</span><span class='line'>
+</span><span class='line'>    location ~* ^/(assets|images)/ {
+</span><span class='line'>      expires 1y;
+</span><span class='line'>      add_header Cache-Control "public";
+</span><span class='line'>
+</span><span class='line'>      if ($request_filename ~* ^.*?\.(eot|ttf|woff|svg|otf|woff2)$) {
+</span><span class='line'>        add_header Access-Control-Allow-Origin *;
+</span><span class='line'>      }
+</span><span class='line'>      break;
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step20: install redis and run
+follow the instruction in this site:
+<code>https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis</code></p>
+
+<p>step21: run sidekiq</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>RAILS_ENV=production bundle exec sidekiq</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Trouble shooting:
@@ -475,6 +557,8 @@ From the commandline you can run <code>nginx -c /etc/nginx/nginx.conf -t</code> 
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2017/05/31/trouble-shooting-graphicsmagick-is-not-installed/">Trouble Shooting - GraphicsMagick Is Not Installed</a>
+    
     <a class="list-group-item " href="/blog/2017/05/05/transaction-for-aasm/">Transaction for AASM</a>
     
     <a class="list-group-item " href="/blog/2017/03/21/deploy-docker-on-aws-ecs/">Deploy Docker on AWS ECS</a>
@@ -482,8 +566,6 @@ From the commandline you can run <code>nginx -c /etc/nginx/nginx.conf -t</code> 
     <a class="list-group-item " href="/blog/2017/03/21/steps-for-deploy-from-different-machine/">Steps for Deploy From Different Machine</a>
     
     <a class="list-group-item " href="/blog/2016/12/12/put-img-inmiddle-of-hr-tag/">Put Img in Middle of Hr Tag</a>
-    
-    <a class="list-group-item active" href="/blog/2016/09/27/install-ubuntu-nginx-postgresql-and-passenger-in-aws/">Install Ubuntu, Nginx, Postgresql and Passenger in AWS</a>
     
   </div>
 </section>

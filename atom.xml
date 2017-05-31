@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2017-05-05T16:19:13+08:00</updated>
+  <updated>2017-05-31T12:10:54+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -12,6 +12,24 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Trouble Shooting - GraphicsMagick Is Not Installed]]></title>
+    <link href="http://chiwenchen.github.io/blog/2017/05/31/trouble-shooting-graphicsmagick-is-not-installed/"/>
+    <updated>2017-05-31T12:06:04+08:00</updated>
+    <id>http://chiwenchen.github.io/blog/2017/05/31/trouble-shooting-graphicsmagick-is-not-installed</id>
+    <content type="html"><![CDATA[<p>If the app is deployed to linux and running, when you upload the image through carrierwave and getting this error:
+<code>ImageMagick/GraphicsMagick is not installed</code></p>
+
+<p>just run below command to install the missing package.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install graphicsmagick</span></code></pre></td></tr></table></div></figure>
+
+
+<p>this should solve the problem.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Transaction for AASM]]></title>
@@ -265,10 +283,13 @@
 <p>step2: give user the sudo authrization</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo visudo
-</span><span class='line'># add [apps ALL=(ALL:ALL) ALL] in the file.</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo visudo</span></code></pre></td></tr></table></div></figure>
 
+
+<h1>add <code>apps ALL=(ALL:ALL) ALL</code> to the end of the file.</h1>
+
+<p>press <code>CTRL + O</code>, and then <code>ENTER</code> to save the edit
+press <code>CTRL + X</code> to exit</p>
 
 <p>step3: switch to apps</p>
 
@@ -291,11 +312,15 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh-keygen
+</span><span class='line'># use the default path and empty passphrase
 </span><span class='line'>$ cd ~/.ssh
 </span><span class='line'>$ touch authorized_keys
 </span><span class='line'>$ vi authorized_keys
-</span><span class='line'>copy and past local machine's public key here</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>copy and past local machine's public key here
+</span><span class='line'>after this approach, you can access the server by `$ ssh apps@YOUR_SERVER_IP` without .pem file. </span></code></pre></td></tr></table></div></figure>
 
 
 <p>step6: make ssh more easy</p>
@@ -321,8 +346,10 @@
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
+<span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo dpkg-reconfigure tzdata
 </span><span class='line'>$ sudo apt-get install ntp
+</span><span class='line'>$ sudo apt-get install ntpdate
 </span><span class='line'>$ sudo ntpdate ntp.ubuntu.com # Update time</span></code></pre></td></tr></table></div></figure>
 
 
@@ -338,9 +365,11 @@
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo hostname your-hostname
 </span><span class='line'>$ sudo vim /etc/hosts
 </span><span class='line'>###
+</span><span class='line'>replace 127.0.0.1 localhost with
 </span><span class='line'>127.0.0.1 your-hostname
 </span><span class='line'>###
 </span><span class='line'>$ sudo vim /etc/hostname
@@ -407,11 +436,12 @@ Since Rails ships with so many dependencies these days, we&rsquo;re going to nee
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
 </span><span class='line'>$ sudo apt-get install -y nodejs
-</span><span class='line'>$ gem install rails -v 4.2.6
+</span><span class='line'>$ gem install rails -v 4.2.6 --no-ri --no-rdoc
 </span><span class='line'>$ rails -v</span></code></pre></td></tr></table></div></figure>
 
 
-<p>step13: install Postgresql</p>
+<p>step13: install Postgresql
+this is for Ubuntu 14.04, if your ubuntu version is differ from this, please visit <code>https://gorails.com/setup/ubuntu/14.10</code></p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -514,8 +544,78 @@ Since Rails ships with so many dependencies these days, we&rsquo;re going to nee
 <p>step19: change root in nginx.conf</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi /etc/nginx/nginx.conf
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi /etc/nginx/nginx.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or generate a new file under /etc/nginx/sites-enabled
+you can name it APP_NAME.conf, and put below configuration</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>server {
+</span><span class='line'>    listen 80;
+</span><span class='line'>    # server_name myguide-staging.zaidei.com
+</span><span class='line'>    server_name ~^.*$;
+</span><span class='line'>
+</span><span class='line'>    # Tell Nginx and Passenger where your app's 'public' directory is
+</span><span class='line'>    root /home/apps/besideyou/current/public;
+</span><span class='line'>
+</span><span class='line'>    rails_env "staging";
+</span><span class='line'>
+</span><span class='line'>    access_log /home/apps/APP_FOLDER/shared/log/access.log;
+</span><span class='line'>    error_log  /home/apps/APP_FOLDER/shared/log/error.log;
+</span><span class='line'>    # APP_FOLDER is auto generated by capistrano when run cap deploy:check
+</span><span class='line'>
+</span><span class='line'>    # Turn on Passenger
+</span><span class='line'>    passenger_enabled on;
+</span><span class='line'>    passenger_ruby /home/apps/.rvm/gems/ruby-2.2.5/wrappers/ruby;
+</span><span class='line'>
+</span><span class='line'>    location ~* ^/(assets|images)/ {
+</span><span class='line'>      expires 1y;
+</span><span class='line'>      add_header Cache-Control "public";
+</span><span class='line'>
+</span><span class='line'>      if ($request_filename ~* ^.*?\.(eot|ttf|woff|svg|otf|woff2)$) {
+</span><span class='line'>        add_header Access-Control-Allow-Origin *;
+</span><span class='line'>      }
+</span><span class='line'>      break;
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step20: install redis and run
+follow the instruction in this site:
+<code>https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis</code></p>
+
+<p>step21: run sidekiq</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>RAILS_ENV=production bundle exec sidekiq</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Trouble shooting:
@@ -1866,142 +1966,6 @@ the reason to add this is because typically when we run normal specs, thess spec
 
 
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Macros and Shared Examples]]></title>
-    <link href="http://chiwenchen.github.io/blog/2015/07/25/macros-and-shared-examples/"/>
-    <updated>2015-07-25T08:50:29+08:00</updated>
-    <id>http://chiwenchen.github.io/blog/2015/07/25/macros-and-shared-examples</id>
-    <content type="html"><![CDATA[<p>The <strong>Macro</strong> and <strong>Shared Example</strong> are both used to extract codes that will repeated several times. use this two techniques will allow us to build pieces of codes that can be used through our entire rspec test, also make our testing code more clean and readable.</p>
-
-<!-- more -->
-
-
-<h2>Macro</h2>
-
-
-<p>First thing first, create a folder under <code>spec</code> called <code>support</code>, any file under this <code>support</code> folder will automatically loaded when we execute rspec. Next, create a file called &lsquo;macros.rb&rsquo; under the <code>support</code>, here is the place we will put our marco code to be used later on.</p>
-
-<p>It is pretty simple to use macro, let see an example, let&rsquo;s say we want to exract codes that can create a user named <code>sammy</code> and log her in by putting her id into the session, this is a really common function we use in our test.</p>
-
-<p>Inside the &lsquo;macros.rb&rsquo;</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">log_in_user</span>
-</span><span class='line'>  <span class="n">sammy</span> <span class="o">=</span> <span class="no">Fabricate</span><span class="p">(</span><span class="ss">:user</span><span class="p">,</span> <span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;sammy&#39;</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span> <span class="o">=</span> <span class="n">sammy</span><span class="o">.</span><span class="n">id</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Somewhere in our test code, if we want to log in a user before tests, we can do this</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">before</span>  <span class="p">{</span><span class="n">log_in_user</span><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">describe</span> <span class="s1">&#39;user can do whatever he/she want&#39;</span>
-</span><span class='line'> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Done! as simple as creating a new method, and good new is that this macro can be used in your entire Rspec code.</p>
-
-<p>another macro example.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="k">def</span> <span class="nf">current_user</span>
-</span><span class='line'>  <span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">session</span><span class="o">[</span><span class="ss">:user_id</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This way, we can refer to current_user like this in the test code:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">sammy</span> <span class="o">=</span> <span class="n">current_user</span>
-</span><span class='line'><span class="c1">#now we can use sammy to process our test if we need it</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Shared Example</h2>
-
-
-<p>Again, create a file called &lsquo;shared_examples.rb&rsquo; under <code>spec/support</code>.</p>
-
-<p>Cool thing <code>shared_example</code> can do is allow us to group and extract the test items and reuse it.</p>
-
-<p>For example, if we want the &lsquo;user not log in&rsquo; scenario to be tested in mutiple controller action, this is the case we can use shared_examples.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">shared_examples</span> <span class="s1">&#39;user_not_logged_in&#39;</span> <span class="k">do</span>
-</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;redirect_to front_videos_path&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">clear_current_user</span> <span class="c1"># this method is defined in macro</span>
-</span><span class='line'>    <span class="n">action</span>
-</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">redirect_to</span> <span class="n">front_videos_path</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">it</span> <span class="s1">&#39;shows the flash notice&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">clear_current_user</span> <span class="c1"># this method is defined in macro</span>
-</span><span class='line'>    <span class="n">action</span>
-</span><span class='line'>    <span class="n">expect</span><span class="p">(</span><span class="n">flash</span><span class="o">[</span><span class="ss">:notice</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">be_present</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And inside the test, we can use it like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='rb'><span class='line'><span class="n">describe</span> <span class="s1">&#39;POST update_position&#39;</span> <span class="k">do</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">#some other test</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">it_behaves_like</span> <span class="s1">&#39;user_not_logged_in&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="n">let</span><span class="p">(</span><span class="ss">:action</span><span class="p">){</span><span class="n">post</span> <span class="s1">&#39;update_queue_item&#39;</span><span class="p">}</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>it_behaves_like</code> is the preserved word to call the shared_example, folloewd by the name of the example. and inside the block, we can put the setting, the action call and the verification.</p>
-
-<p>Be noticed that the <code>Macros</code> can also be used in the shared_examples. <code>clear_current_user</code> in this case.</p>
-
-<p>And also we can use <code>let</code> to define the variable if we do not want to hard code something. For instance, <code>action</code> will be different when we call this test in different controller/action. so it&rsquo;s a good situation to use <code>let</code> here.</p>
 ]]></content>
   </entry>
   
