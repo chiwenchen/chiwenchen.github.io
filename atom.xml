@@ -4,7 +4,7 @@
   <title><![CDATA[My Octopress Blog]]></title>
   <link href="http://chiwenchen.github.io/atom.xml" rel="self"/>
   <link href="http://chiwenchen.github.io/"/>
-  <updated>2017-05-31T12:10:54+08:00</updated>
+  <updated>2017-06-20T17:03:51+08:00</updated>
   <id>http://chiwenchen.github.io/</id>
   <author>
     <name><![CDATA[Your Name]]></name>
@@ -616,6 +616,14 @@ follow the instruction in this site:
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>RAILS_ENV=production bundle exec sidekiq</span></code></pre></td></tr></table></div></figure>
+
+
+<p>step22: install mini magick</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get update
+</span><span class='line'>sudo apt-get install ruby-mini-magick</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Trouble shooting:
